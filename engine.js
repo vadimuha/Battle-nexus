@@ -10,6 +10,7 @@ $(function(){
 	gameFill.height = 600;
 	width = gameFill.width;
 	height = gameFill.height;
+
 	terrain = new Image();
 	terrain.src = "sprites/terrain.jpg";
 	p1fUnit = new Image(); // first 1p unit
@@ -36,7 +37,9 @@ $(function(){
 	p2Nexus = {
 		image:p2NexusImg,
 		heal:1000,
-		coin:30
+		coin:30,
+		y:height-60-35-100,
+		x:width/2
 	}
 	p2Units = []; // array of 2 player units
 	p1Units = []; //array of 1 player units
@@ -90,7 +93,7 @@ $(function(){
 		this.style = "mele",
 		this.atack = false,
 		this.target = 0,
-		this.lastSprite = 13;
+		this.lastSprite = 13
 	}
 	//hidralisk
 		function hidralisk() {
@@ -98,7 +101,7 @@ $(function(){
 		this.height = 58,
 		this.width=43,
 		this.x = gameFill.width/2,
-		this.y=height-60-35-100,
+		this.y=height-60-35-10,
 		this.heal=200,
 		this.dmg=30,
 		this.cost=50,
@@ -124,7 +127,7 @@ $(function(){
 		this.col = 8,
 		this.atack = false, //atack or not
 		this.row = 0,
-		this.range = 100,
+		this.range = 50,
 		this.style = "range",
 		this.target = 0,
 		this.lastSprite = 12
@@ -256,19 +259,18 @@ function update() {
 	//hidralisk logic (shooter)
 	if(p2Units[i].type == "hidralisk"){
 
-		if(p2Units[i].y <= 30+100+p2Units[i].range){
+			if(p2Units.length == 0){
+			if(p2Units[i].y <= 30+100+p2Units[i].range ) {
+				p1Units[i].y += 5;
+			}
 
-			p2Units[i].atack = true;
-			p2Units[i].target = p1Nexus;
-
+			else {
+				p1Units[i].atack = true;
+				p1Units[i].target = p2Nexus;
+			}
 		}
-		else if(p1Units.length == 0){
 
-			p2Units[i].y -= 5;
-			p2Units[i].atack = false;
-		
-
-		}
+	
 
 	}
 
@@ -281,17 +283,17 @@ function update() {
 	for (var i = 0; i < p1Units.length; i++) {
 		
 		if(p1Units[i].type == "ghost"){
-			
-			if(p1Units[i].y <= height-130-p1Units[i].range-p1Units[i].height) {
-				if(p2Units.length == 0){
+			if(p2Units.length == 0){
+			if(p1Units[i].y <= height-130-p1Units[i].range-p1Units[i].height ) {
+
 				p1Units[i].y += 5;
 			}
 
-			}
 			else {
 				p1Units[i].atack = true;
 				p1Units[i].target = p2Nexus;
 			}
+		}
 
 		}
 
@@ -336,22 +338,56 @@ function update() {
 			if(p2Units.length != 0){
 
 				for(j=0;j<p2Units.length;j++){ //if is some p2 units
-					
-						if(!collision(p1Units[i],p1Units[i].target || p1Units[i].target == 0) ){
-							p1Units[i].y+=5;
-							
+						
+						if(p1Units[i].style != "range"){ // if his non range
+							if(!collision(p1Units[i],p1Units[i].target) || p1Units[i].target == 0) {//if p1 doesn't touches his target or don't have target
+								p1Units[i].y+=5;
+								console.log("+5");
+							}
+						}
+						else if(p1Units[i].style == "range"){ // and if he range
+							if(!collisionRange(p1Units[i],p1Units[i].target) || p1Units[i].target == 0) {//if p1 doesn't touches his target or don't have target
+								p1Units[i].y+=5;
+								console.log("+5");
+							}
 						}
 
-						if(!collision(p2Units[j],p2Units[j].target) ){
-							p2Units[j].y-=5;
+						if(p2Units[j].style!="range"){ // if p2 is non range do next
+							if(!collision(p2Units[j],p2Units[j].target) || p2Units[j].target == 0) { // if they don't touches do next
+								p2Units[j].y-=5;
+								console.log("-5");
+							}
+						}
+						else if(p2Units[j].style=="range"){ // if p2 is range to next
+							if(!collisionRange(p2Units[j],p2Units[j].target) || p2Units[j].target == 0){ // if thet don't touches move
+								p2Units[j].y-=5;
+								console.log("-5");
+							}
 						}
 
-						if(collision(p1Units[i],p2Units[j]) ){
+					if(p1Units[i].style != "range"){
+						if(collision(p1Units[i],p2Units[j])){
 							if(p1Units[i].target == 0){
-							p1Units[i].target = p2Units[j];
-							console.log(p1Units[i].target);
+								p1Units[i].target = p2Units[j];
+								console.log(p1Units[i].target);
+							}
+						}
+					}
+						else if(p1Units[i].style == "range"){
+							console.log("is ranger");
+								if(collisionRange(p1Units[i],p2Units[j]) ) {
+								console.log("in collisionRange");
+								console.log(p1Units[i].target);
+								if(p1Units[i].target == 0){
+									console.log("triggered");
+									p1Units[i].target = p2Units[j];
+									console.log(p1Units[i].target);
+								}
 							}
 
+						}
+						
+						if(collision(p2Units[j],p1Units[i]) ){
 							if(p2Units[j].target == 0){ // if don't have target
 							p2Units[j].target = p1Units[i];	
 							console.log(p2Units[j].target);
@@ -359,28 +395,16 @@ function update() {
 							}
 						}
 					
-					
-					
 
-						if(collision(p1Units[i],p2Units[j]) ){
-							if(p1Units[i].target == 0){
-							p1Units[i].target = p2Units[j];
-							console.log(p1Units[i].target);
-							}
-
-							if(p2Units[j].target == 0){ // if don't have target
-							p2Units[j].target = p1Units[i];	
-							console.log(p2Units[j].target);
-
-							}
-						}
-					
-					
-
-					if(collision(p1Units[i],p1Units[i].target)){ // if p1 touches target
+					if(collision(p1Units[i],p1Units[i].target) && p1Units[i].style != "range"){ // if p1 touches target
 						p1Units[i].atack = true;
 					}
-					//###########################################
+					else if(p1Units[i].style == "range"){
+						if(collisionRange(p1Units[i],p1Units[i].target) ){
+							p1Units[i].atack = true;
+						}
+					}
+					//####################template of attack####################### 
 					
 					if(collision(p2Units[j],p2Units[j].target)){ //if p2 touches target
 						p2Units[j].atack = true;
@@ -393,7 +417,6 @@ function update() {
 				
 
 			
-
 				}
 			}
 
