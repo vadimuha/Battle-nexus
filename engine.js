@@ -68,7 +68,10 @@ $(function(){
 	this.cost=10,
 	this.type="zergling",
 	this.style = "mele",
-	this.atack = false
+	this.range = 0,
+	this.atack = false,
+	this.target = 0,
+	this.lastSprite = 10
 	}
 	//ultralisk
 	function ultralisk() {
@@ -83,8 +86,11 @@ $(function(){
 		this.type="ultralisk",
 		this.col = 0, // 0 is first col
 		this.row = 0, 
+		this.range = 0,
 		this.style = "mele",
-		this.atack = false
+		this.atack = false,
+		this.target = 0,
+		this.lastSprite = 13;
 	}
 	//hidralisk
 		function hidralisk() {
@@ -100,8 +106,10 @@ $(function(){
 		this.col = 0,
 		this.atack = false, //atack or not
 		this.row = 0,
-		this.range = 50,
-		this.style = "range"
+		this.range = 100,
+		this.style = "range",
+		this.target = 0,
+		this.lastSprite = 11
 	}
 		function ghost() {
 		this.img = ghostImg,
@@ -116,8 +124,10 @@ $(function(){
 		this.col = 8,
 		this.atack = false, //atack or not
 		this.row = 0,
-		this.range = 50,
-		this.style = "range"
+		this.range = 100,
+		this.style = "range",
+		this.target = 0,
+		this.lastSprite = 12
 	}
 
 		function zealot() {
@@ -128,12 +138,15 @@ $(function(){
 		this.y=30+100,
 		this.heal=100,
 		this.dmg=10,
+		this.range = 0,
 		this.cost=10,
 		this.type="zealot",
 		this.col = 8,
 		this.atack = false, //atack or not
 		this.row = 0,
-		this.style = "mele"
+		this.style = "mele",
+		this.target = 0,
+		this.lastSprite = 11
 	}
 		function templar() {
 		this.img = templarImg,
@@ -148,7 +161,10 @@ $(function(){
 		this.col = 8,
 		this.atack = false, //atack or not
 		this.row = 0,
-		this.style = "mele"
+		this.range = 0,
+		this.style = "mele",
+		this.target = 0, // 0 is not have target
+		this.lastSprite = 16
 	}
 	
 
@@ -187,7 +203,7 @@ $(function(){
 	$(gameFill).mousemove(function (e) {
 		var mouseX = e.pageX - gameFill.offsetLeft;
 		var mouseY = e.pageY - gameFill.offsetTop;
-		//console.log(mouseX,mouseY);
+		//console.log(mouseX);
 	})
 
 //game loop
@@ -205,14 +221,15 @@ function update() {
 
 			if(p2Units[i].y<=30+100 && p2Units[i].x <= width/2+100) { // if comes to nexus
 				p2Units[i].atack = true;
-	
+				p2Units[i].target = p1Nexus;
 		}
 
 			else if(p2Units[i].y <= 100 && p2Units[i].x >=width/2+100){
 				p2Units[i].atack = true;
+				p2Units[i].target = p1Nexus;
 			}
 
-			else {
+			else if(p1Units.length == 0){
 			p2Units[i].y-=5; //improved speed for develop in release remove to -1
 			p2Units[i].col = 0;
 		} // don't touch above it's movement
@@ -223,12 +240,13 @@ function update() {
 
 			if(p2Units[i].y<=30+100 && p2Units[i].x <= width/2+100) { // if comes to nexus
 
-				p2Units[i].atack = true;	
+				p2Units[i].atack = true;
+				p2Units[i].target = p1Nexus;	
 		}
 
 		
 
-			else {
+			else if(p1Units.length == 0){
 			p2Units[i].y-=5; //improved speed for develop in release remove to -1
 			p2Units[i].atack = false;
 		} // don't touch above it's movement
@@ -241,36 +259,20 @@ function update() {
 		if(p2Units[i].y <= 30+100+p2Units[i].range){
 
 			p2Units[i].atack = true;
+			p2Units[i].target = p1Nexus;
 
 		}
-		else{
+		else if(p1Units.length == 0){
+
 			p2Units[i].y -= 5;
 			p2Units[i].atack = false;
+		
+
 		}
 
 	}
 
-	//GLOBAL - for all units
-	if(p2Units.length >= 2){
-
-
-	if(i!=current){
-		//check if touches
-		if(p2Units[current].y+5 <= p2Units[i].y  && p2Units[current].x >= p2Units[i].x && p2Units[current].x <= p2Units[i].x + p2Units[i].width && p2Units[i].x < width - p2Units[i].width*2){
-			p2Units[i].x+=10;
-		}
-
-	}
-
-	if(i == p2Units.length-1) {
-		current++;
-	}
-
-	if(current == p2Units.length){
-		current = 0;
-	}
-
-	}
+	
 	
 
 }	// end of 2p units
@@ -278,60 +280,160 @@ function update() {
 	
 	for (var i = 0; i < p1Units.length; i++) {
 		
-		if(p1Units[i].style == "range"){
+		if(p1Units[i].type == "ghost"){
 			
 			if(p1Units[i].y <= height-130-p1Units[i].range-p1Units[i].height) {
+				if(p2Units.length == 0){
 				p1Units[i].y += 5;
+			}
+
 			}
 			else {
 				p1Units[i].atack = true;
+				p1Units[i].target = p2Nexus;
 			}
 
 		}
 
 		if(p1Units[i].type == "zealot") {
 				if(p1Units[i].y <= height-130-p1Units[i].height ) {
+
+				if(p2Units.length == 0){ // if no units attack nexus
 				p1Units[i].y += 5;
+			}
+
 			}
 
 			else {
 				p1Units[i].atack = true;
+				p1Units[i].target = p2Nexus;
 			}
 		}
 
 		if(p1Units[i].type == "templar") {
 				if(p1Units[i].y <= height-130-p1Units[i].height ) {
-				p1Units[i].y += 5;
+					if(p2Units.length == 0){
+					p1Units[i].y += 5;
+				}
+
 			}
 
 			else {
 				p1Units[i].atack = true;
+				p1Units[i].target = p2Nexus;
+
 			}
 		}
 
-			if(p1Units.length >= 2){
 
 
-	if(i!=curr){
-		//check if touches
-		if(p1Units[curr].y+5 <= p1Units[i].y  && p1Units[curr].x >= p1Units[i].x && p1Units[curr].x <= p1Units[i].x + p1Units[i].width && p1Units[i].x < width - p1Units[i].width*2){
-			p1Units[i].x+=10;
+	}
+
+	//MAIN FIGHT AI
+	if(p1Units.length >= p2Units.length){
+		for(i=0;i<p1Units.length;i++){ //main loop
+
+			if(p2Units.length != 0){
+
+				for(j=0;j<p2Units.length;j++){ //if is some p2 units
+
+					if(p1Units[i].style != "range"){ // 
+					
+						if(!collision(p1Units[i],p1Units[i].target || p1Units[i].target == 0) ){
+							p1Units[i].y+=5;
+							
+						}
+
+						if(!collision(p2Units[j],p2Units[j].target) ){
+							p2Units[j].y-=5;
+						}
+
+						if(collision(p1Units[i],p2Units[j]) ){
+							if(p1Units[i].target == 0){
+							p1Units[i].target = p2Units[j];
+							console.log(p1Units[i].target);
+							}
+
+							if(p2Units[j].target == 0){ // if don't have target
+							p2Units[j].target = p1Units[i];	
+							console.log(p2Units[j].target);
+
+							}
+						}
+					}
+					if(p2Units[j].style != "range"){
+						if(!collision(p1Units[i],p1Units[i].target || p1Units[i].target == 0) ){
+							p1Units[i].y+=5;
+							
+						}
+
+						if(!collision(p2Units[j],p2Units[j].target) ){
+							p2Units[j].y-=5;
+						}
+
+						if(collision(p1Units[i],p2Units[j]) ){
+							if(p1Units[i].target == 0){
+							p1Units[i].target = p2Units[j];
+							console.log(p1Units[i].target);
+							}
+
+							if(p2Units[j].target == 0){ // if don't have target
+							p2Units[j].target = p1Units[i];	
+							console.log(p2Units[j].target);
+
+							}
+						}
+					}
+					 if(p1Units[i].style == "range"){ // if this unit is ranger
+					 	
+						if(!collisionRange(p1Units[i],p1Units[i].target) ){
+							p1Units[i].y+=5;
+							
+						}
+
+						if(collisionRange(p1Units[i],p1Units[i].target) ){
+							if(p1Units[i].target == 0){
+							p1Units[i].target = p2Units[j];
+							console.log(p1Units[i].target);
+							}
+							p1Units[i].atack = true;
+						}
+
+					}
+
+					if(collision(p1Units[i],p1Units[i].target)){ // if p1 touches target
+						p1Units[i].atack = true;
+					}
+					//###########################################
+					if(p2Units[j].style!="range"){
+					if(collision(p2Units[j],p2Units[j].target)){ //if p2 touches target
+						p2Units[j].atack = true;
+						if(p2Units[j].height*p2Units[j].row == p2Units[j].height*p2Units[j].lastSprite){ //if is last aatck sprite
+							p2Units[j].target.heal-=p2Units[j].dmg; //do damage
+							//console.log(p2Units[j].target.heal);
+						}
+
+					}
+				}
+
+			
+
+				}
+			}
+
+		}
+
+
+	}
+	else{
+		for(i=0;i<p2Units.length;i++){ //main loop if p2 have more units
+
+			/*DO AFTER P1*/
+
 		}
 
 	}
 
-	if(i == p1Units.length-1) {
-		curr++;
-	}
-
-	if(curr == p1Units.length){
-		curr = 0;
-	}
-
-	}
-
-	}
-	
 
 }
 
@@ -404,7 +506,7 @@ function render() {
 		if(val.type == "zergling"){
 		//6 first move
 		//6 last attack
-		ctx.drawImage(val.img,val.width*val.col,val.height*val.row,val.width,val.height,val.x,val.y,50,50);
+		ctx.drawImage(val.img,val.width*val.col,val.height*val.row,val.width,val.height,val.x,val.y,val.width,val.height);
 		if(val.atack){
 			val.row = val.height*val.row <= val.height*10 ? val.row + 1 : val.row = 7;
 		}
@@ -418,9 +520,9 @@ function render() {
 			// 15 at all
 			//8 first move
 			//7 last attack
-			ctx.drawImage(val.img,val.width*val.col,val.height*val.row,val.width,val.height,val.x,val.y,70,70);
+			ctx.drawImage(val.img,val.width*val.col,val.height*val.row,val.width,val.height,val.x,val.y,val.width,val.height);
 			if(val.atack){
-				val.row = val.height*val.row <= val.height*13 ? val.row+1 : val.row = 8;
+				val.row = val.height*val.row <= val.height*val.lastSprite ? val.row+1 : val.row = 8;
 			}
 			else{
 				val.row = val.height*val.row <= val.height*8 ? val.row+1 : val.row = 0;
@@ -434,7 +536,7 @@ function render() {
 			//12 sprites at all
 			//654 last sprite
 
-			ctx.drawImage(val.img,val.width*val.col+4,val.height*val.row,40,58,val.x,val.y,50,50);
+			ctx.drawImage(val.img,val.width*val.col+4,val.height*val.row,40,58,val.x,val.y,val.width,val.height);
 
 			if(val.atack){
 				val.row = val.row*val.height < val.height*11 ? val.row+1 : val.row = 7;
@@ -470,7 +572,7 @@ function render() {
 			7 first move
 			*/
 
-			ctx.drawImage(val.img,val.width*val.col,val.height*val.row,val.width,val.height,val.x,val.y,50,50);
+			ctx.drawImage(val.img,val.width*val.col,val.height*val.row,val.width,val.height,val.x,val.y,val.width,val.height);
 			if(val.atack){
 				val.row = val.height*val.row <= val.height*11 ? val.row + 1 : val.row = 7;
 			}
@@ -485,7 +587,7 @@ function render() {
 			62.2 height
 			10 attack
 			*/
-			ctx.drawImage(val.img,val.width*val.col,val.height*val.row,val.width,val.height,val.x,val.y,50,50);
+			ctx.drawImage(val.img,val.width*val.col,val.height*val.row,val.width,val.height,val.x,val.y,val.width,val.height);
 			
 			if(val.atack){
 				val.row = val.row*val.height <= val.height*16 ? val.row + 1 : val.row = 9;
