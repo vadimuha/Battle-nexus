@@ -336,8 +336,6 @@ function update() {
 			if(p2Units.length != 0){
 
 				for(j=0;j<p2Units.length;j++){ //if is some p2 units
-
-					if(p1Units[i].style != "range"){ // 
 					
 						if(!collision(p1Units[i],p1Units[i].target || p1Units[i].target == 0) ){
 							p1Units[i].y+=5;
@@ -360,16 +358,9 @@ function update() {
 
 							}
 						}
-					}
-					if(p2Units[j].style != "range"){
-						if(!collision(p1Units[i],p1Units[i].target || p1Units[i].target == 0) ){
-							p1Units[i].y+=5;
-							
-						}
-
-						if(!collision(p2Units[j],p2Units[j].target) ){
-							p2Units[j].y-=5;
-						}
+					
+					
+					
 
 						if(collision(p1Units[i],p2Units[j]) ){
 							if(p1Units[i].target == 0){
@@ -383,29 +374,14 @@ function update() {
 
 							}
 						}
-					}
-					 if(p1Units[i].style == "range"){ // if this unit is ranger
-					 	
-						if(!collisionRange(p1Units[i],p1Units[i].target) ){
-							p1Units[i].y+=5;
-							
-						}
-
-						if(collisionRange(p1Units[i],p1Units[i].target) ){
-							if(p1Units[i].target == 0){
-							p1Units[i].target = p2Units[j];
-							console.log(p1Units[i].target);
-							}
-							p1Units[i].atack = true;
-						}
-
-					}
+					
+					
 
 					if(collision(p1Units[i],p1Units[i].target)){ // if p1 touches target
 						p1Units[i].atack = true;
 					}
 					//###########################################
-					if(p2Units[j].style!="range"){
+					
 					if(collision(p2Units[j],p2Units[j].target)){ //if p2 touches target
 						p2Units[j].atack = true;
 						if(p2Units[j].height*p2Units[j].row == p2Units[j].height*p2Units[j].lastSprite){ //if is last aatck sprite
@@ -414,7 +390,7 @@ function update() {
 						}
 
 					}
-				}
+				
 
 			
 
