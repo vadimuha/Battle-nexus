@@ -29,6 +29,7 @@ $(function(){
 	p1NexusImg.src = "sprites/Command_Center.gif";
 	p2NexusImg = new Image();
 	p2NexusImg.src = "sprites/Lair.gif";
+
 	p1Nexus = {
 		image:p1NexusImg,
 		heal:1000,
@@ -74,7 +75,7 @@ $(function(){
 	this.y=height-60-35-100,
 	this.row=0,
 	this.col=0,
-	this.heal=100,
+	this.heal=10,
 	this.dmg=5,
 	this.cost=10,
 	this.type="zergling",
@@ -82,7 +83,8 @@ $(function(){
 	this.range = 0,
 	this.atack = false,
 	this.target = 0,
-	this.lastSprite = 10
+	this.lastSprite = 10,
+	this.deadRow = 13
 	}
 	//ultralisk
 	function ultralisk() {
@@ -91,7 +93,7 @@ $(function(){
 		this.width=110.125,
 		this.x = gameFill.width/2,
 		this.y = height-60-35-100,
-		this.heal=500,
+		this.heal=10,
 		this.dmg=50,
 		this.cost=100,
 		this.type="ultralisk",
@@ -101,7 +103,8 @@ $(function(){
 		this.style = "mele",
 		this.atack = false,
 		this.target = 0,
-		this.lastSprite = 13
+		this.lastSprite = 13,
+		this.deadRow = 15
 	}
 	//hidralisk
 		function hidralisk() {
@@ -109,8 +112,8 @@ $(function(){
 		this.height = 58,
 		this.width=43,
 		this.x = gameFill.width/2,
-		this.y=height-60-35-10,
-		this.heal=200,
+		this.y=height-60-35-100,
+		this.heal=10,
 		this.dmg=30,
 		this.cost=50,
 		this.type="hidralisk",
@@ -120,7 +123,8 @@ $(function(){
 		this.range = 100,
 		this.style = "range",
 		this.target = 0,
-		this.lastSprite = 11
+		this.lastSprite = 11,
+		this.deadRow = 12
 	}
 		function ghost() {
 		this.img = ghostImg,
@@ -158,7 +162,9 @@ $(function(){
 		this.row = 0,
 		this.style = "mele",
 		this.target = 0,
-		this.lastSprite = 11
+		this.lastSprite = 11,
+		this.deadRow = 13
+
 	}
 		function templar() {
 		this.img = templarImg,
@@ -176,7 +182,8 @@ $(function(){
 		this.range = 0,
 		this.style = "mele",
 		this.target = 0, // 0 is not have target
-		this.lastSprite = 16
+		this.lastSprite = 16,
+		this.deadRow = 18
 	}
 	
 
@@ -249,33 +256,37 @@ function update() {
 	}
 	//ultralisk logic
 	if(p2Units[i].type == "ultralisk"){
-
-			if(p2Units[i].y<=30+100 && p2Units[i].x <= width/2+100) { // if comes to nexus
-
+		if(p1Units.length == 0){
+			if(p2Units[i].y<=30+100) { // if comes to nexus
 				p2Units[i].atack = true;
-				p2Units[i].target = p1Nexus;	
+				p2Units[i].target = p1Nexus;
+				console.log(p2Units[i].target)
+			if(p2Units[i].target.type == "nexus"){		
+				if(p2Units[i].height*p2Units[i].row == p2Units[i].height*p2Units[i].lastSprite){
+					p1Nexus.heal -= p2Units[i].dmg;
+				}
+			}
 		}
-
-		
-
-			else if(p1Units.length == 0){
+			else{
 			p2Units[i].y-=5; //improved speed for develop in release remove to -1
 			p2Units[i].atack = false;
 		} // don't touch above it's movement
+		}
 
 	}
 
 	//hidralisk logic (shooter)
 	if(p2Units[i].type == "hidralisk"){
 
-			if(p2Units.length == 0){
-			if(p2Units[i].y <= 30+100+p2Units[i].range ) {
-				p1Units[i].y += 5;
+			if(p1Units.length == 0){
+			if(p2Units[i].y - p2Units[i].range >= 30+100 ) {
+				p2Units[i].y -= 5;
 			}
 
 			else {
-				p1Units[i].atack = true;
-				p1Units[i].target = p2Nexus;
+				p2Units[i].atack = true;
+				p2Units[i].target = p2Nexus;				
+
 			}
 		}
 
@@ -424,7 +435,190 @@ function update() {
 						}
 						if(p2Units[j].target.heal <= 0){
 							if(p2Units[j].target.row == p2Units[j].target.deadRow){
+								p2Units[j].target = p1Nexus;
+								p2Units[j].atack = false;
+							}
+							
+						}
+
+					}
+				}
+				if(p2Units[j].style == "range"){
+						if(collisionRangeD(p2Units[j],p2Units[j].target)){ //if p2 touches target
+						p2Units[j].atack = true;
+						if(p2Units[j].height*p2Units[j].row == p2Units[j].height*p2Units[j].lastSprite){ //if is last aatck sprite
+							p2Units[j].target.heal-=p2Units[j].dmg; //do damage
+							console.log(p2Units[j].target.heal);
+						}
+						if(p2Units[j].target.heal <= 0){
+							if(p2Units[j].target.row == p2Units[j].target.deadRow){
+								p2Units[j].target = p1Nexus;
+								p2Units[j].atack = false;
+							}
+							
+						}
+
+					}
+				}
+				if(p1Units[i].style != "range"){
+					if(collision(p1Units[i],p1Units[i].target)){ //if p2Units touches target
+						p1Units[i].atack = true;
+						if(p1Units[i].height*p1Units[i].row == p1Units[i].height*p1Units[i].lastSprite){ //if is last aatck sprite
+							p1Units[i].target.heal-=p1Units[i].dmg; //do damage
+							console.log(p1Units[i].target.heal);
+						}
+						if(p1Units[i].target.heal <= 0){
+							if(p1Units[i].target.row == p1Units[i].target.deadRow){
+								p1Units[i].target = p2Nexus;
+								p1Units[i].atack = false;
+							}
+							
+						}
+
+					}
+				}
+				if(p1Units[i].style == "range"){
+						if(collisionRange(p1Units[i],p1Units[i].target)){ //if p2Units touches target
+						p1Units[i].atack = true;
+						if(p1Units[i].height*p1Units[i].row == p1Units[i].height*p1Units[i].lastSprite){ //if is last aatck sprite
+							p1Units[i].target.heal-=p1Units[i].dmg; //do damage
+							console.log(p1Units[i].target.heal);
+						}
+						if(p1Units[i].target.heal <= 0){
+							if(p1Units[i].target.row == p1Units[i].target.deadRow){
+								p1Units[i].target = p2Nexus;//Not shure about that
+								p1Units[i].atack = false;
+							}
+							
+						}
+
+					}
+				} 	
+			
+				}
+			}
+
+		}
+
+
+	}
+	else{
+		for(i=0;i<p2Units.length;i++){ //main loop if p2 have more units
+			if(p1Units.length != 0){
+				for(var j = 0; j<p1Units.length;j++){
+						if(p2Units[i].style != "range"){ // if his non range
+							if(!collision(p2Units[i],p2Units[i].target) || p2Units[i].target == 0 ) {//if p1 doesn't touches his target or don't have target
+								p2Units[i].y-=5;
+							}
+						}
+						else if(p2Units[i].style == "range"){ // and if he range
+							if(!collisionRange(p2Units[i],p2Units[i].target) || p2Units[i].target == 0 ) {//if p1 doesn't touches his target or don't have target
+								p2Units[i].y-=5;
+							}
+						}
+
+						if(p1Units[j].style!="range"){ // if p2Units is non range do next
+							if(!collision(p1Units[j],p1Units[j].target) || p1Units[j].target == 0) { // if they don't touches do next
+								p1Units[j].y+=5;
+							}
+						}
+						else if(p1Units[j].style=="range"){ // if p2Units is range to next
+							if(!collisionRangeD(p1Units[j],p1Units[j].target) || p1Units[j].target == 0){ // if thet don't touches move
+								p1Units[j].y+=5;
+							}
+						}
+						//target selection
+					if(p2Units[i].style != "range"){
+						if(collision(p2Units[i],p1Units[j])){
+							if(p2Units[i].target == 0 || p2Units[i].target.type == "nexus"){
+								p2Units[i].target = p1Units[j];
+								console.log(p2Units[i].target);
+							}
+						}
+					}
+						else if(p2Units[i].style == "range"){
+								if(collisionRange(p2Units[i],p1Units[j]) ) {
+								if(p2Units[i].target == 0 || p2Units[i].target.type == "nexus"){
+									p2Units[i].target = p1Units[j];
+									console.log(p2Units[i].target);
+								}
+							}
+
+						}
+
+					if(p1Units[j].style != "range") {
+						if(collision(p1Units[j],p2Units[i]) ){
+							if(p1Units[j].target == 0 || p1Units[j].target.type == "nexus"){ // if don't have target
+								p1Units[j].target = p2Units[i];	
+								console.log(p1Units[j].target);
+							}
+						}
+					}
+					else if(p1Units[j].style == "range"){
+						 if(collisionRangeD(p1Units[j],p2Units[i]) ){
+							if(p1Units[j].target == 0 || p1Units[j].target.type == "nexus"){ // if don't have target
+								p1Units[j].target = p2Units[i];	
+								console.log(p1Units[j].target);
+
+							}
+						}
+					}
+
+					if(collision(p2Units[i],p2Units[i].target) && p2Units[i].style != "range"){ // if p1 touches target
+						p2Units[i].atack = true;
+					}
+					else if(p2Units[i].style == "range"){
+						if(collisionRange(p2Units[i],p2Units[i].target) ){
+							p2Units[i].atack = true;
+						}
+					}
+					//####################template of attack####################### 
+				if(p1Units[j].style != "range"){
+					if(collision(p1Units[j],p1Units[j].target)){ //if p2Units touches target
+						p1Units[j].atack = true;
+						if(p1Units[j].height*p1Units[j].row == p1Units[j].height*p1Units[j].lastSprite){ //if is last aatck sprite
+							p1Units[j].target.heal-=p1Units[j].dmg; //do damage
+							console.log(p1Units[j].target.heal);
+						}
+						if(p1Units[j].target.heal <= 0){
+							if(p1Units[j].target.row == p1Units[j].target.deadRow){
+								p1Units[j].target = p2Nexus;
+								p1Units[j].atack = false;
+							}
+							
+						}
+
+					}
+				}
+				if(p1Units[j].style == "range"){
+						if(collisionRange(p1Units[j],p1Units[j].target)){ //if p2Units touches target
+						p1Units[j].atack = true;
+						if(p1Units[j].height*p1Units[j].row == p1Units[j].height*p1Units[j].lastSprite){ //if is last aatck sprite
+							p1Units[j].target.heal-=p1Units[j].dmg; //do damage
+							console.log(p1Units[j].target.heal);
+						}
+						if(p1Units[j].target.heal <= 0){
+							if(p1Units[j].target.row == p1Units[j].target.deadRow){
+								p1Units[j].target = p2Nexus;//Not shure about that
+								p1Units[j].atack = false;
+							}
+							
+						}
+
+					}
+				} 	
+
+				if(p2Units[j].style != "range"){
+					if(collision(p2Units[j],p2Units[j].target)){ //if p2 touches target
+						p2Units[j].atack = true;
+						if(p2Units[j].height*p2Units[j].row == p2Units[j].height*p2Units[j].lastSprite){ //if is last aatck sprite
+							p2Units[j].target.heal-=p2Units[j].dmg; //do damage
+							console.log(p2Units[j].target.heal);
+						}
+						if(p2Units[j].target.heal <= 0){
+							if(p2Units[j].target.row == p2Units[j].target.deadRow){
 								p2Units[j].target = 0;
+								p2Units[j].atack = false;
 							}
 							
 						}
@@ -441,25 +635,16 @@ function update() {
 						if(p2Units[j].target.heal <= 0){
 							if(p2Units[j].target.row == p2Units[j].target.deadRow){
 								p2Units[j].target = 0;
+								p2Units[j].atack = false;
 							}
 							
 						}
 
 					}
 				}
-			
+
 				}
 			}
-
-		}
-
-
-	}
-	else{
-		for(i=0;i<p2Units.length;i++){ //main loop if p2 have more units
-
-			/*DO AFTER P1*/
-
 		}
 
 	}
@@ -467,30 +652,6 @@ function update() {
 
 }
 
-	/*  check each element check each element (made by my self)
-	
-		ctx.drawImage(p2Nexus.image,width/2,height-130,100,100)  p2 nexus
-
-		var arr1 = [0,1,2,3];
-		var current = 0;
-
-		for(var i = 0; i < arr1.length; i++){
-
-		if(i!=current){
-
-			console.log(arr1[current], arr1[i]);
-
-		}
-		if(i==arr1.length-1){
-			current++;
-		}
-
-	}
-	if(current == arr1.length){
-		current = 0;
-	}
-	
-	 */
 
 
 
@@ -537,11 +698,20 @@ function render() {
 		//6 first move
 		//6 last attack
 		ctx.drawImage(val.img,val.width*val.col,val.height*val.row,val.width,val.height,val.x,val.y,val.width,val.height);
-		if(val.atack){
-			val.row = val.height*val.row <= val.height*10 ? val.row + 1 : val.row = 7;
+	if(val.heal > 0){
+			if(val.atack){
+				val.row = val.height*val.row <= val.height*10 ? val.row + 1 : val.row = 7;
+			}
+			else{
+				val.row = val.height*val.row <= val.height*6 ? val.row + 1 : val.row = 0;
+			}
 		}
 		else{
-			val.row = val.height*val.row <= val.height*6 ? val.row + 1 : val.row = 0;
+			val.row = 13;
+			val.col = val.col < 5 ? val.col + 1 : val.col = 0;
+			if(val.col == 4){
+				p2Units.splice(val,1);
+			}
 		}
 
 		}
@@ -551,13 +721,21 @@ function render() {
 			//8 first move
 			//7 last attack
 			ctx.drawImage(val.img,val.width*val.col,val.height*val.row,val.width,val.height,val.x,val.y,val.width,val.height);
+		if(val.heal > 0){
 			if(val.atack){
-				val.row = val.height*val.row <= val.height*val.lastSprite ? val.row+1 : val.row = 8;
+				val.row = val.height*val.row <= val.height*val.lastSprite+1 ? val.row+1 : val.row = 8;
 			}
 			else{
 				val.row = val.height*val.row <= val.height*8 ? val.row+1 : val.row = 0;
 			}
-
+		}
+		else{
+			val.row = val.lastSprite+2;
+			val.col = val.col < 4 ? val.col + 1 : val.col = 0;
+			if(val.col == 3){
+				p2Units.splice(val,1);
+			}
+		}
 
 		}
 		if(val.type == "hidralisk"){ //hidralisk
@@ -567,13 +745,21 @@ function render() {
 			//654 last sprite
 
 			ctx.drawImage(val.img,val.width*val.col+4,val.height*val.row,40,58,val.x,val.y,val.width,val.height);
-
+		if(val.heal > 0){
 			if(val.atack){
 				val.row = val.row*val.height < val.height*11 ? val.row+1 : val.row = 7;
 			}
 			else {
 				val.row = val.row*val.height < val.height*6 ? val.row+1 : val.row = 0;
 			}
+		}
+		else {
+			val.row = 12;
+			val.col = val.col < 4 ? val.col + 1 : val.col = 0;
+			if(val.col == 3){
+				p2Units.splice(val,1);
+			}
+		}
 
 		}
 	});
@@ -586,7 +772,7 @@ function render() {
 			//9 last attack
 			//42.5 width 8 at all
 			ctx.drawImage(val.img,(val.width*val.col),(val.height*val.row),val.width,val.height,val.x,val.y,50,50);
-		if(val.heal >= 0) {
+		if(val.heal > 0) {
 			if(val.atack) {
 				val.row = val.width*val.row < val.width*12 ? val.row +1 : val.row = 9;
 			}
@@ -614,12 +800,22 @@ function render() {
 			*/
 
 			ctx.drawImage(val.img,val.width*val.col,val.height*val.row,val.width,val.height,val.x,val.y,val.width,val.height);
-			if(val.atack){
-				val.row = val.height*val.row <= val.height*11 ? val.row + 1 : val.row = 7;
+			if(val.heal > 0){
+				if(val.atack){
+					val.row = val.height*val.row <= val.height*11 ? val.row + 1 : val.row = 7;
+				}
+				else{
+					val.row = val.height*val.row <= val.height*6 ? val.row + 1 : val.row = 0;
+				}
 			}
 			else{
-				val.row = val.height*val.row <= val.height*6 ? val.row + 1 : val.row = 0;
+				val.row = val.deadRow;
+				val.col = val.col <= 5 ? val.col + 1 : val.col = 0;
+				if(val.col == 6){
+					p1Units.splice(val,1);
+				}
 			}
+
 		}
 
 		if(val.type == "templar"){
@@ -629,12 +825,20 @@ function render() {
 			10 attack
 			*/
 			ctx.drawImage(val.img,val.width*val.col,val.height*val.row,val.width,val.height,val.x,val.y,val.width,val.height);
-			
-			if(val.atack){
-				val.row = val.row*val.height <= val.height*16 ? val.row + 1 : val.row = 9;
+			if(val.heal > 0){
+				if(val.atack){
+					val.row = val.row*val.height <= val.height*16 ? val.row + 1 : val.row = 9;
+				}
+				else{
+					val.row = val.row*val.height <= val.height*8 ? val.row + 1 : val.row = 1;
+				}
 			}
 			else{
-				val.row = val.row*val.height <= val.height*8 ? val.row + 1 : val.row = 1;
+				val.row = 18;
+				val.col = val.col <= 7 ? val.col + 1 : val.col = 0;
+				if(val.col == 7){
+					p1Units.splice(val,1);
+				}
 			}
 
 		}
