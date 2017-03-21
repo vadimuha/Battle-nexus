@@ -50,6 +50,10 @@ $(function(){
 		height:107,
 		type:"nexus"
 	}
+	setInterval(function () {
+			p1Nexus.coin++;
+			p2Nexus.coin++;
+		},2000);
 	p2Units = []; // array of 2 player units
 	p1Units = []; //array of 1 player units
 	//units
@@ -94,7 +98,7 @@ $(function(){
 		this.x = gameFill.width/2,
 		this.y = height-60-35-100,
 		this.heal=200,
-		this.dmg=50,
+		this.dmg=30,
 		this.cost=100,
 		this.type="ultralisk",
 		this.col = 0, // 0 is first col
@@ -114,13 +118,13 @@ $(function(){
 		this.x = gameFill.width/2,
 		this.y=height-60-35-100,
 		this.heal=50,
-		this.dmg=30,
+		this.dmg=20,
 		this.cost=50,
 		this.type="hidralisk",
 		this.col = 0,
 		this.atack = false, //atack or not
 		this.row = 0,
-		this.range = 100,
+		this.range = 50,
 		this.style = "range",
 		this.target = 0,
 		this.lastSprite = 11,
@@ -132,8 +136,8 @@ $(function(){
 		this.width=42.5,
 		this.x = gameFill.width/2,
 		this.y=30+100,
-		this.heal=100,
-		this.dmg=10,
+		this.heal=30,
+		this.dmg=5,
 		this.cost=10,
 		this.type="ghost",
 		this.col = 8,
@@ -152,10 +156,10 @@ $(function(){
 		this.width=41,
 		this.x = gameFill.width/2,
 		this.y=30+100,
-		this.heal=100,
-		this.dmg=10,
+		this.heal=150,
+		this.dmg=15,
 		this.range = 0,
-		this.cost=10,
+		this.cost=50,
 		this.type="zealot",
 		this.col = 8,
 		this.atack = false, //atack or not
@@ -173,8 +177,8 @@ $(function(){
 		this.x = gameFill.width/2,
 		this.y=30+100,
 		this.heal=100,
-		this.dmg=10,
-		this.cost=10,
+		this.dmg=100,
+		this.cost=50,
 		this.type="templar",
 		this.col = 8,
 		this.atack = false, //atack or not
@@ -186,35 +190,51 @@ $(function(){
 		this.deadRow = 18
 	}
 	
-
+	//examples
 	unit1 = new zergling;
-
+	ultrlsk = new ultralisk;
+	hidrlsk = new hidralisk;
+	gst = new ghost;
+	zilon = new zealot;
+	tmplr = new templar;
 	//if unit is bought
 	$(window).keydown(function (e) {
 		switch (e.keyCode){
 			case n3:
+			if(p2Nexus.coin >= unit1.cost){
 			p2Units.push(new zergling);
-			console.log(p2Units);
+			p2Nexus.coin -= unit1.cost;
+			}
 			break;
 			case n1:
+			if(p2Nexus.coin >= ultrlsk.cost){
 			p2Units.push(new ultralisk);
-			console.log(p2Units);
+			p2Nexus.coin -= ultrlsk.cost;
+			}
 			break;
 			case n2:
+			if(p2Nexus.coin >= hidrlsk.cost){
 			p2Units.push(new hidralisk);
-			console.log(p2Units);
+			p2Nexus.coin -= hidrlsk.cost;
+			}
 			break;
 			case ee:
+			if(p1Nexus.coin >= gst.cost){
 			p1Units.push(new ghost);
-			console.log(p1Units);
+			p1Nexus.coin -= gst.cost;
+			}
 			break;
 			case w:
+			if(p1Nexus.coin >= zilon.cost){
 			p1Units.push(new zealot);
-			console.log(p1Units);
+			p1Nexus.coin -= zilon.cost;
+			}
 			break;
 			case q:
+		if(p1Nexus.coin >= tmplr.cost){
 			p1Units.push(new templar);
-			console.log(p1Units);
+			p1Nexus.coin -= tmplr.cost;
+		}
 			break;
 		}
 	});
@@ -232,6 +252,7 @@ $(function(){
 	},1000/15);
 
 });
+
 
 function update() {
 	//p2 units
@@ -456,6 +477,7 @@ function update() {
 							console.log(p2Units[j].target.heal);
 						}
 						if(p2Units[j].target.heal <= 0){
+							p2Nexus.coin += p2Units[j].target.cost/2;
 							if(p2Units[j].target.row == p2Units[j].target.deadRow){
 								p2Units[j].target = p1Nexus;
 								p2Units[j].atack = false;
@@ -473,6 +495,7 @@ function update() {
 							console.log(p2Units[j].target.heal);
 						}
 						if(p2Units[j].target.heal <= 0){
+							p2Nexus.coin += p2Units[j].target.cost/2;
 							if(p2Units[j].target.row == p2Units[j].target.deadRow){
 								p2Units[j].target = p1Nexus;
 								p2Units[j].atack = false;
@@ -490,6 +513,7 @@ function update() {
 							console.log(p1Units[i].target.heal);
 						}
 						if(p1Units[i].target.heal <= 0){
+							p1Nexus.coin += p1Units[i].target.cost/2;
 							if(p1Units[i].target.row == p1Units[i].target.deadRow){
 								p1Units[i].target = p2Nexus;
 								p1Units[i].atack = false;
@@ -507,6 +531,7 @@ function update() {
 							console.log(p1Units[i].target.heal);
 						}
 						if(p1Units[i].target.heal <= 0){
+							p1Nexus.coin += p1Units[i].target.cost;
 							if(p1Units[i].target.row == p1Units[i].target.deadRow){
 								p1Units[i].target = p2Nexus;//Not shure about that
 								p1Units[i].atack = false;
@@ -603,6 +628,7 @@ function update() {
 							console.log(p1Units[j].target.heal);
 						}
 						if(p1Units[j].target.heal <= 0){
+							p1Nexus.coin += p1Units[j].target.cost/2;
 							if(p1Units[j].target.row == p1Units[j].target.deadRow){
 								p1Units[j].target = p2Nexus;
 								p1Units[j].atack = false;
@@ -620,6 +646,7 @@ function update() {
 							console.log(p1Units[j].target.heal);
 						}
 						if(p1Units[j].target.heal <= 0){
+							p1Nexus.coin += p1Units[j].target.cost/2;
 							if(p1Units[j].target.row == p1Units[j].target.deadRow){
 								p1Units[j].target = p2Nexus;//Not shure about that
 								p1Units[j].atack = false;
@@ -630,34 +657,36 @@ function update() {
 					}
 				} 	
 
-				if(p2Units[j].style != "range"){
-					if(collision(p2Units[j],p2Units[j].target)){ //if p2 touches target
-						p2Units[j].atack = true;
-						if(p2Units[j].height*p2Units[j].row == p2Units[j].height*p2Units[j].lastSprite){ //if is last aatck sprite
-							p2Units[j].target.heal-=p2Units[j].dmg; //do damage
-							console.log(p2Units[j].target.heal);
+				if(p2Units[i].style != "range"){
+					if(collision(p2Units[i],p2Units[i].target)){ //if p2 touches target
+						p2Units[i].atack = true;
+						if(p2Units[i].height*p2Units[i].row == p2Units[i].height*p2Units[i].lastSprite){ //if is last aatck sprite
+							p2Units[i].target.heal-=p2Units[i].dmg; //do damage
+							console.log(p2Units[i].target.heal);
 						}
-						if(p2Units[j].target.heal <= 0){
-							if(p2Units[j].target.row == p2Units[j].target.deadRow){
-								p2Units[j].target = 0;
-								p2Units[j].atack = false;
+						if(p2Units[i].target.heal <= 0){
+							p2Nexus.coin += p2Units[i].target.cost/2;
+							if(p2Units[i].target.row == p2Units[i].target.deadRow){
+								p2Units[i].target = p1Nexus;
+								p2Units[i].atack = false;
 							}
 							
 						}
 
 					}
 				}
-				if(p2Units[j].style == "range"){
-						if(collisionRangeD(p2Units[j],p2Units[j].target)){ //if p2 touches target
-						p2Units[j].atack = true;
-						if(p2Units[j].height*p2Units[j].row == p2Units[j].height*p2Units[j].lastSprite){ //if is last aatck sprite
-							p2Units[j].target.heal-=p2Units[j].dmg; //do damage
-							console.log(p2Units[j].target.heal);
+				if(p2Units[i].style == "range"){
+						if(collisionRangeD(p2Units[i],p2Units[i].target)){ //if p2 touches target
+						p2Units[i].atack = true;
+						if(p2Units[i].height*p2Units[i].row == p2Units[i].height*p2Units[i].lastSprite){ //if is last aatck sprite
+							p2Units[i].target.heal-=p2Units[i].dmg; //do damage
+							console.log(p2Units[i].target.heal);
 						}
-						if(p2Units[j].target.heal <= 0){
-							if(p2Units[j].target.row == p2Units[j].target.deadRow){
-								p2Units[j].target = 0;
-								p2Units[j].atack = false;
+						if(p2Units[i].target.heal <= 0){
+							p2Nexus.coin += p2Units[i].target.cost/2;
+							if(p2Units[i].target.row == p2Units[i].target.deadRow){
+								p2Units[i].target = p1Nexus;
+								p2Units[i].atack = false;
 							}
 							
 						}
@@ -865,7 +894,7 @@ function render() {
 
 		}
 
-
+		
 	});
 
 
