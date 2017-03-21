@@ -32,14 +32,22 @@ $(function(){
 	p1Nexus = {
 		image:p1NexusImg,
 		heal:1000,
-		coin:30
+		coin:30,
+		width:130,
+		height:107,
+		y:30,
+		x:width/2,
+		type:"nexus"
 	}
 	p2Nexus = {
 		image:p2NexusImg,
 		heal:1000,
 		coin:30,
 		y:height-60-35-100,
-		x:width/2
+		x:width/2,
+		width:130,
+		height:107,
+		type:"nexus"
 	}
 	p2Units = []; // array of 2 player units
 	p1Units = []; //array of 1 player units
@@ -130,7 +138,8 @@ $(function(){
 		this.range = 50,
 		this.style = "range",
 		this.target = 0,
-		this.lastSprite = 12
+		this.lastSprite = 12,
+		this.deadRow = 13
 	}
 
 		function zealot() {
@@ -206,7 +215,7 @@ $(function(){
 	$(gameFill).mousemove(function (e) {
 		var mouseX = e.pageX - gameFill.offsetLeft;
 		var mouseY = e.pageY - gameFill.offsetTop;
-		//console.log(mouseX);
+		//console.log(mouseY);
 	})
 
 //game loop
@@ -340,61 +349,62 @@ function update() {
 				for(j=0;j<p2Units.length;j++){ //if is some p2 units
 						
 						if(p1Units[i].style != "range"){ // if his non range
-							if(!collision(p1Units[i],p1Units[i].target) || p1Units[i].target == 0) {//if p1 doesn't touches his target or don't have target
+							if(!collision(p1Units[i],p1Units[i].target) || p1Units[i].target == 0 ) {//if p1 doesn't touches his target or don't have target
 								p1Units[i].y+=5;
-								console.log("+5");
 							}
 						}
 						else if(p1Units[i].style == "range"){ // and if he range
-							if(!collisionRange(p1Units[i],p1Units[i].target) || p1Units[i].target == 0) {//if p1 doesn't touches his target or don't have target
+							if(!collisionRange(p1Units[i],p1Units[i].target) || p1Units[i].target == 0 ) {//if p1 doesn't touches his target or don't have target
 								p1Units[i].y+=5;
-								console.log("+5");
 							}
 						}
 
 						if(p2Units[j].style!="range"){ // if p2 is non range do next
 							if(!collision(p2Units[j],p2Units[j].target) || p2Units[j].target == 0) { // if they don't touches do next
 								p2Units[j].y-=5;
-								console.log("-5");
 							}
 						}
 						else if(p2Units[j].style=="range"){ // if p2 is range to next
-							if(!collisionRange(p2Units[j],p2Units[j].target) || p2Units[j].target == 0){ // if thet don't touches move
+							if(!collisionRangeD(p2Units[j],p2Units[j].target) || p2Units[j].target == 0){ // if thet don't touches move
 								p2Units[j].y-=5;
-								console.log("-5");
 							}
 						}
-
+						//target selection
 					if(p1Units[i].style != "range"){
 						if(collision(p1Units[i],p2Units[j])){
-							if(p1Units[i].target == 0){
+							if(p1Units[i].target == 0 || p1Units[i].target.type == "nexus"){
 								p1Units[i].target = p2Units[j];
 								console.log(p1Units[i].target);
 							}
 						}
 					}
 						else if(p1Units[i].style == "range"){
-							console.log("is ranger");
 								if(collisionRange(p1Units[i],p2Units[j]) ) {
-								console.log("in collisionRange");
-								console.log(p1Units[i].target);
-								if(p1Units[i].target == 0){
-									console.log("triggered");
+								if(p1Units[i].target == 0 || p1Units[i].target.type == "nexus"){
 									p1Units[i].target = p2Units[j];
 									console.log(p1Units[i].target);
 								}
 							}
 
 						}
-						
+
+					if(p2Units[j].style != "range") {
 						if(collision(p2Units[j],p1Units[i]) ){
-							if(p2Units[j].target == 0){ // if don't have target
-							p2Units[j].target = p1Units[i];	
-							console.log(p2Units[j].target);
+							if(p2Units[j].target == 0 || p2Units[j].target.type == "nexus"){ // if don't have target
+								p2Units[j].target = p1Units[i];	
+								console.log(p2Units[j].target);
+							}
+						}
+					}
+					else if(p2Units[j].style == "range"){
+						 if(collisionRangeD(p2Units[j],p1Units[i]) ){
+							if(p2Units[j].target == 0 || p2Units[j].target.type == "nexus"){ // if don't have target
+								p2Units[j].target = p1Units[i];	
+								console.log(p2Units[j].target);
 
 							}
 						}
-					
+					}
 
 					if(collision(p1Units[i],p1Units[i].target) && p1Units[i].style != "range"){ // if p1 touches target
 						p1Units[i].atack = true;
@@ -405,17 +415,38 @@ function update() {
 						}
 					}
 					//####################template of attack####################### 
-					
+				if(p2Units[j].style != "range"){
 					if(collision(p2Units[j],p2Units[j].target)){ //if p2 touches target
 						p2Units[j].atack = true;
 						if(p2Units[j].height*p2Units[j].row == p2Units[j].height*p2Units[j].lastSprite){ //if is last aatck sprite
 							p2Units[j].target.heal-=p2Units[j].dmg; //do damage
-							//console.log(p2Units[j].target.heal);
+							console.log(p2Units[j].target.heal);
+						}
+						if(p2Units[j].target.heal <= 0){
+							if(p2Units[j].target.row == p2Units[j].target.deadRow){
+								p2Units[j].target = 0;
+							}
+							
 						}
 
 					}
-				
+				}
+				if(p2Units[j].style == "range"){
+						if(collisionRangeD(p2Units[j],p2Units[j].target)){ //if p2 touches target
+						p2Units[j].atack = true;
+						if(p2Units[j].height*p2Units[j].row == p2Units[j].height*p2Units[j].lastSprite){ //if is last aatck sprite
+							p2Units[j].target.heal-=p2Units[j].dmg; //do damage
+							console.log(p2Units[j].target.heal);
+						}
+						if(p2Units[j].target.heal <= 0){
+							if(p2Units[j].target.row == p2Units[j].target.deadRow){
+								p2Units[j].target = 0;
+							}
+							
+						}
 
+					}
+				}
 			
 				}
 			}
@@ -555,12 +586,23 @@ function render() {
 			//9 last attack
 			//42.5 width 8 at all
 			ctx.drawImage(val.img,(val.width*val.col),(val.height*val.row),val.width,val.height,val.x,val.y,50,50);
-			if(val.atack){
+		if(val.heal >= 0) {
+			if(val.atack) {
 				val.row = val.width*val.row < val.width*12 ? val.row +1 : val.row = 9;
 			}
 			else{
 				val.row = val.width*val.row < val.width*8 ? val.row+1 : val.row = 0;
 			}
+		}
+
+		else { // if is dead
+			val.row = val.deadRow; // dead row
+			val.col = val.col < 5 ? val.col+1 : val.col = 0; // dead somewhy in col
+			if(val.col == 5){
+				p1Units.splice(val,1);
+			}
+		}
+
 		}
 
 		if(val.type == "zealot"){
