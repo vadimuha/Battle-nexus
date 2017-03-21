@@ -75,7 +75,7 @@ $(function(){
 	this.y=height-60-35-100,
 	this.row=0,
 	this.col=0,
-	this.heal=10,
+	this.heal=50,
 	this.dmg=5,
 	this.cost=10,
 	this.type="zergling",
@@ -93,7 +93,7 @@ $(function(){
 		this.width=110.125,
 		this.x = gameFill.width/2,
 		this.y = height-60-35-100,
-		this.heal=10,
+		this.heal=200,
 		this.dmg=50,
 		this.cost=100,
 		this.type="ultralisk",
@@ -113,7 +113,7 @@ $(function(){
 		this.width=43,
 		this.x = gameFill.width/2,
 		this.y=height-60-35-100,
-		this.heal=10,
+		this.heal=50,
 		this.dmg=30,
 		this.cost=50,
 		this.type="hidralisk",
@@ -241,12 +241,13 @@ function update() {
 			if(p2Units[i].y<=30+100 && p2Units[i].x <= width/2+100) { // if comes to nexus
 				p2Units[i].atack = true;
 				p2Units[i].target = p1Nexus;
+				if(p2Units[i].target.type == "nexus"){		
+				if(p2Units[i].height*p2Units[i].row == p2Units[i].height*p2Units[i].lastSprite){
+					p1Nexus.heal -= p2Units[i].dmg;
+				}
+			}
 		}
 
-			else if(p2Units[i].y <= 100 && p2Units[i].x >=width/2+100){
-				p2Units[i].atack = true;
-				p2Units[i].target = p1Nexus;
-			}
 
 			else if(p1Units.length == 0){
 			p2Units[i].y-=5; //improved speed for develop in release remove to -1
@@ -285,7 +286,12 @@ function update() {
 
 			else {
 				p2Units[i].atack = true;
-				p2Units[i].target = p2Nexus;				
+				p2Units[i].target = p2Nexus;
+				if(p2Units[i].target.type == "nexus"){		
+					if(p2Units[i].height*p2Units[i].row == p2Units[i].height*p2Units[i].lastSprite){
+						p1Nexus.heal -= p2Units[i].dmg;
+					}
+				}				
 
 			}
 		}
@@ -312,6 +318,12 @@ function update() {
 			else {
 				p1Units[i].atack = true;
 				p1Units[i].target = p2Nexus;
+				if(p1Units[i].target.type == "nexus"){		
+				if(p1Units[i].height*p1Units[i].row == p1Units[i].height*p1Units[i].lastSprite){
+					p2Nexus.heal -= p1Units[i].dmg;
+				}
+			}
+
 			}
 		}
 
@@ -329,6 +341,11 @@ function update() {
 			else {
 				p1Units[i].atack = true;
 				p1Units[i].target = p2Nexus;
+				if(p1Units[i].target.type == "nexus"){		
+				if(p1Units[i].height*p1Units[i].row == p1Units[i].height*p1Units[i].lastSprite){
+					p2Nexus.heal -= p1Units[i].dmg;
+				}
+			}
 			}
 		}
 
@@ -343,6 +360,11 @@ function update() {
 			else {
 				p1Units[i].atack = true;
 				p1Units[i].target = p2Nexus;
+				if(p1Units[i].target.type == "nexus"){		
+				if(p1Units[i].height*p1Units[i].row == p1Units[i].height*p1Units[i].lastSprite){
+					p2Nexus.heal -= p1Units[i].dmg;
+				}
+			}
 
 			}
 		}
