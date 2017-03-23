@@ -10,7 +10,7 @@ $(function(){
 	gameFill.height = 600;
 	width = gameFill.width;
 	height = gameFill.height;
-
+	mvSpeed = 3;
 	terrain = new Image();
 	terrain.src = "sprites/terrain.jpg";
 	p1fUnit = new Image(); // first 1p unit
@@ -88,7 +88,9 @@ $(function(){
 	this.atack = false,
 	this.target = 0,
 	this.lastSprite = 10,
-	this.deadRow = 13
+	this.deadRow = 13,
+	this.firstMove = true,
+	this.notPaid = true
 	}
 	//ultralisk
 	function ultralisk() {
@@ -108,7 +110,9 @@ $(function(){
 		this.atack = false,
 		this.target = 0,
 		this.lastSprite = 13,
-		this.deadRow = 15
+		this.deadRow = 15,
+		this.firstMove = true,
+		this.notPaid = true
 	}
 	//hidralisk
 		function hidralisk() {
@@ -128,7 +132,9 @@ $(function(){
 		this.style = "range",
 		this.target = 0,
 		this.lastSprite = 11,
-		this.deadRow = 12
+		this.deadRow = 12,
+		this.firstMove = true,
+		this.notPaid = true
 	}
 		function ghost() {
 		this.img = ghostImg,
@@ -147,7 +153,9 @@ $(function(){
 		this.style = "range",
 		this.target = 0,
 		this.lastSprite = 12,
-		this.deadRow = 13
+		this.deadRow = 13,
+		this.firstMove = true,
+		this.notPaid = true
 	}
 
 		function zealot() {
@@ -167,7 +175,9 @@ $(function(){
 		this.style = "mele",
 		this.target = 0,
 		this.lastSprite = 11,
-		this.deadRow = 13
+		this.deadRow = 13,
+		this.firstMove = true,
+		this.notPaid = true
 
 	}
 		function templar() {
@@ -187,7 +197,9 @@ $(function(){
 		this.style = "mele",
 		this.target = 0, // 0 is not have target
 		this.lastSprite = 16,
-		this.deadRow = 18
+		this.deadRow = 18,
+		this.firstMove = true,
+		this.notPaid = true
 	}
 	
 	//examples
@@ -200,19 +212,19 @@ $(function(){
 	//if unit is bought
 	$(window).keydown(function (e) {
 		switch (e.keyCode){
-			case n3:
+			case m:
 			if(p2Nexus.coin >= unit1.cost){
 			p2Units.push(new zergling);
 			p2Nexus.coin -= unit1.cost;
 			}
 			break;
-			case n1:
+			case n:
 			if(p2Nexus.coin >= ultrlsk.cost){
 			p2Units.push(new ultralisk);
 			p2Nexus.coin -= ultrlsk.cost;
 			}
 			break;
-			case n2:
+			case b:
 			if(p2Nexus.coin >= hidrlsk.cost){
 			p2Units.push(new hidralisk);
 			p2Nexus.coin -= hidrlsk.cost;
@@ -271,7 +283,7 @@ function update() {
 
 
 			else if(p1Units.length == 0){
-			p2Units[i].y-=5; //improved speed for develop in release remove to -1
+			p2Units[i].y-=mvSpeed; //improved speed for develop in release remove to -1
 			p2Units[i].col = 0;
 		} // don't touch above it's movement
 		
@@ -290,7 +302,7 @@ function update() {
 			}
 		}
 			else{
-			p2Units[i].y-=5; //improved speed for develop in release remove to -1
+			p2Units[i].y-=mvSpeed; //improved speed for develop in release remove to -1
 			p2Units[i].atack = false;
 		} // don't touch above it's movement
 		}
@@ -302,7 +314,7 @@ function update() {
 
 			if(p1Units.length == 0){
 			if(p2Units[i].y - p2Units[i].range >= 30+100 ) {
-				p2Units[i].y -= 5;
+				p2Units[i].y -= mvSpeed;
 			}
 
 			else {
@@ -332,8 +344,7 @@ function update() {
 		if(p1Units[i].type == "ghost"){
 			if(p2Units.length == 0){
 			if(p1Units[i].y <= height-130-p1Units[i].range-p1Units[i].height ) {
-
-				p1Units[i].y += 5;
+				p1Units[i].y += mvSpeed;				
 			}
 
 			else {
@@ -354,7 +365,7 @@ function update() {
 				if(p1Units[i].y <= height-130-p1Units[i].height ) {
 
 				if(p2Units.length == 0){ // if no units attack nexus
-				p1Units[i].y += 5;
+				p1Units[i].y += mvSpeed;
 			}
 
 			}
@@ -373,7 +384,7 @@ function update() {
 		if(p1Units[i].type == "templar") {
 				if(p1Units[i].y <= height-130-p1Units[i].height ) {
 					if(p2Units.length == 0){
-					p1Units[i].y += 5;
+					p1Units[i].y += mvSpeed;
 				}
 
 			}
@@ -404,23 +415,35 @@ function update() {
 						
 						if(p1Units[i].style != "range"){ // if his non range
 							if(!collision(p1Units[i],p1Units[i].target) || p1Units[i].target == 0 ) {//if p1 doesn't touches his target or don't have target
-								p1Units[i].y+=5;
+								if(p1Units[i].firstMove){
+									p1Units[i].y+=mvSpeed;
+									p1Units[i].firstMove = false;
+								}
 							}
 						}
 						else if(p1Units[i].style == "range"){ // and if he range
 							if(!collisionRange(p1Units[i],p1Units[i].target) || p1Units[i].target == 0 ) {//if p1 doesn't touches his target or don't have target
-								p1Units[i].y+=5;
+								if(p1Units[i].firstMove){
+								p1Units[i].y+=mvSpeed;
+								p1Units[i].firstMove = false;
+							}
 							}
 						}
 
 						if(p2Units[j].style!="range"){ // if p2 is non range do next
 							if(!collision(p2Units[j],p2Units[j].target) || p2Units[j].target == 0) { // if they don't touches do next
-								p2Units[j].y-=5;
+								if(p2Units[j].firstMove){
+								p2Units[j].y-=mvSpeed;
+								p2Units[j].firstMove = false;
+							}
 							}
 						}
 						else if(p2Units[j].style=="range"){ // if p2 is range to next
 							if(!collisionRangeD(p2Units[j],p2Units[j].target) || p2Units[j].target == 0){ // if thet don't touches move
-								p2Units[j].y-=5;
+								if(p2Units[j].firstMove){
+								p2Units[j].y-=mvSpeed;
+								p2Units[j].firstMove = false;
+							 }
 							}
 						}
 						//target selection
@@ -471,7 +494,10 @@ function update() {
 					//####################template of attack####################### 
 				if(p2Units[j].style != "range"){
 					if(collision(p2Units[j],p2Units[j].target)){ //if p2 touches target
+						if(p2Units[j].target.notPaid){
 						p2Units[j].atack = true;
+						p2Units[j].target.notPaid = false;
+						}
 						if(p2Units[j].height*p2Units[j].row == p2Units[j].height*p2Units[j].lastSprite){ //if is last aatck sprite
 							p2Units[j].target.heal-=p2Units[j].dmg; //do damage
 							console.log(p2Units[j].target.heal);
@@ -495,7 +521,10 @@ function update() {
 							console.log(p2Units[j].target.heal);
 						}
 						if(p2Units[j].target.heal <= 0){
+							if(p2Units[j].target.notPaid){
 							p2Nexus.coin += p2Units[j].target.cost/2;
+							p2Units[j].target.notPaid = false;
+							}
 							if(p2Units[j].target.row == p2Units[j].target.deadRow){
 								p2Units[j].target = p1Nexus;
 								p2Units[j].atack = false;
@@ -513,7 +542,10 @@ function update() {
 							console.log(p1Units[i].target.heal);
 						}
 						if(p1Units[i].target.heal <= 0){
+							if(p1Units[i].target.notPaid){
 							p1Nexus.coin += p1Units[i].target.cost/2;
+							p1Units[i].target.notPaid = false;
+							}
 							if(p1Units[i].target.row == p1Units[i].target.deadRow){
 								p1Units[i].target = p2Nexus;
 								p1Units[i].atack = false;
@@ -531,7 +563,10 @@ function update() {
 							console.log(p1Units[i].target.heal);
 						}
 						if(p1Units[i].target.heal <= 0){
+							if(p1Units[i].target.notPaid){
 							p1Nexus.coin += p1Units[i].target.cost;
+							p1Units[i].target.notPaid = false;
+							}
 							if(p1Units[i].target.row == p1Units[i].target.deadRow){
 								p1Units[i].target = p2Nexus;//Not shure about that
 								p1Units[i].atack = false;
@@ -555,23 +590,35 @@ function update() {
 				for(var j = 0; j<p1Units.length;j++){
 						if(p2Units[i].style != "range"){ // if his non range
 							if(!collision(p2Units[i],p2Units[i].target) || p2Units[i].target == 0 ) {//if p1 doesn't touches his target or don't have target
-								p2Units[i].y-=5;
+								if(p2Units[i].firstMove){
+								p2Units[i].y-=mvSpeed;
+								p2Units[i].firstMove=false;
+								}
 							}
 						}
 						else if(p2Units[i].style == "range"){ // and if he range
 							if(!collisionRange(p2Units[i],p2Units[i].target) || p2Units[i].target == 0 ) {//if p1 doesn't touches his target or don't have target
-								p2Units[i].y-=5;
+								if(p2Units[i].firstMove){
+								p2Units[i].y-=mvSpeed;
+								p2Units[i].firstMove=false;
+								}
 							}
 						}
 
 						if(p1Units[j].style!="range"){ // if p2Units is non range do next
 							if(!collision(p1Units[j],p1Units[j].target) || p1Units[j].target == 0) { // if they don't touches do next
-								p1Units[j].y+=5;
+								if(p1Units[j].firstMove){
+								p1Units[j].y+=mvSpeed;
+								p1Units[j].firstMove = false;
+							}
 							}
 						}
 						else if(p1Units[j].style=="range"){ // if p2Units is range to next
 							if(!collisionRangeD(p1Units[j],p1Units[j].target) || p1Units[j].target == 0){ // if thet don't touches move
-								p1Units[j].y+=5;
+								if(p1Units[j].firstMove){
+								p1Units[j].y+=mvSpeed;
+								p1Units[j].firstMove = false;
+							}
 							}
 						}
 						//target selection
@@ -628,7 +675,10 @@ function update() {
 							console.log(p1Units[j].target.heal);
 						}
 						if(p1Units[j].target.heal <= 0){
+							if(p1Units[j].target.notPaid){
 							p1Nexus.coin += p1Units[j].target.cost/2;
+							p1Units[j].target.notPaid = false;
+							}
 							if(p1Units[j].target.row == p1Units[j].target.deadRow){
 								p1Units[j].target = p2Nexus;
 								p1Units[j].atack = false;
@@ -646,7 +696,10 @@ function update() {
 							console.log(p1Units[j].target.heal);
 						}
 						if(p1Units[j].target.heal <= 0){
+							if(p1Units[j].target.notPaid){
 							p1Nexus.coin += p1Units[j].target.cost/2;
+							p1Units[j].target.notPaid = false;
+							}
 							if(p1Units[j].target.row == p1Units[j].target.deadRow){
 								p1Units[j].target = p2Nexus;//Not shure about that
 								p1Units[j].atack = false;
@@ -665,7 +718,10 @@ function update() {
 							console.log(p2Units[i].target.heal);
 						}
 						if(p2Units[i].target.heal <= 0){
+							if(p2Units[i].target.notPaid){
 							p2Nexus.coin += p2Units[i].target.cost/2;
+							p2Units[i].target.notPaid = false;
+							}
 							if(p2Units[i].target.row == p2Units[i].target.deadRow){
 								p2Units[i].target = p1Nexus;
 								p2Units[i].atack = false;
@@ -683,7 +739,10 @@ function update() {
 							console.log(p2Units[i].target.heal);
 						}
 						if(p2Units[i].target.heal <= 0){
+							if(p2Units[i].target.notPaid){
 							p2Nexus.coin += p2Units[i].target.cost/2;
+							p2Units[i].target.notPaid = false;
+							}
 							if(p2Units[i].target.row == p2Units[i].target.deadRow){
 								p2Units[i].target = p1Nexus;
 								p2Units[i].atack = false;
@@ -698,6 +757,12 @@ function update() {
 			}
 		}
 
+	}
+	for(i=0;i<p1Units.length;i++){
+		for(j=0;j<p2Units.length;j++){
+			p1Units[i].firstMove = true;
+			p2Units[j].firstMove = true;
+		}
 	}
 
 
@@ -732,9 +797,9 @@ function render() {
 	ctx.fillText("100",10,height-2);//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
 	ctx.fillText("50",58,height-2);//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
 	ctx.fillText(unit1.cost,52*2,height-2);//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
-	ctx.fillText("num1",10,height-58);
-	ctx.fillText("num2",58,height-58);
-	ctx.fillText("num3",52*2,height-58);
+	ctx.fillText("b",10,height-58);
+	ctx.fillText("n",58,height-58);
+	ctx.fillText("m",52*2,height-58);
 	//nexus draw
 	ctx.drawImage(p1Nexus.image,width/2,30,100,100); // draw p1 nexus
 	ctx.fillText(p1Nexus.heal+"/1000",width/2+30,20);
