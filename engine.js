@@ -12,6 +12,12 @@ $(function(){
 	gameStage = -1;
 	height = gameFill.height;
 	mvSpeed = 7;
+	templarWord = 0;
+	ziloneWord = 0;
+	ghostWord = 0;
+	hidraliskWord = 0;
+	ultraliskWord = 0;
+	zerglingWord = 0;
 	//loading resourses 
 	terrain = new Image();
 	terrain.src = "sprites/terrain.jpg";
@@ -40,7 +46,6 @@ $(function(){
 	ziloneDeathBetter = new Audio("sound/zilone_death2.wav");
 	ghostAttack1 = new Audio("sound/ghost_attack.wav");
 	ghostAttack1.playbackRate = 1.0;
-	ghostAttack2 = new Audio("sound/ghost_attack1.wav");
 	ghostDead = new Audio("sound/ghost_dead.wav");
 	ghostDeadBetter = new Audio("sound/ghost_dead_better.wav");
 	hidraliskAttack = new Audio("sound/hidralisk_attack.wav");
@@ -53,8 +58,53 @@ $(function(){
 	ultraliskDead = new Audio("sound/ultralisk_dead.wav");
 	zerglingAttack = new Audio("sound/zergling_attack.wav");
 	zerglingAttack.playbackRate = 1;
-	zerglingDead = new Audio("sound/zergling_dead.wav");
 	zerglingDeadBetter = new Audio("sound/zergling_dead1.wav");
+	/*Begin path sound
+	ghost 8 speeks
+	hidralisk 4 speeks
+	templar 9 speeks
+	ultralisk 3 speeks
+	zergling 5 speeks
+	zilone 4 speeks
+	*/
+	ghostSpeek1 = new Audio("sound/ghost_speak1.wav");
+	ghostSpeek2 = new Audio("sound/ghost_speak2.wav");
+	ghostSpeek3 = new Audio("sound/ghost_speak3.wav");
+	ghostSpeek4 = new Audio("sound/ghost_speak4.wav");
+	ghostSpeek5 = new Audio("sound/ghost_speak5.wav"); // if kill 3 units
+	ghostSpeek6 = new Audio("sound/ghost_speak6.wav");
+	ghostSpeek7 = new Audio("sound/ghost_speak7.wav");
+	ghostSpeek8 = new Audio("sound/ghost_speak8.wav");
+
+	hidraliskSpeek1 = new Audio("sound/hidralisk_speak1.wav");
+	hidraliskSpeek2 = new Audio("sound/hidralisk_speak2.wav");
+	hidraliskSpeek3 = new Audio("sound/hidralisk_speak3.wav");
+	hidraliskSpeek4 = new Audio("sound/hidralisk_speak4.wav");
+
+	templarSpeek1 = new Audio("sound/templar_speak1.wav");
+	templarSpeek2 = new Audio("sound/templar_speak2.wav");
+	templarSpeek3 = new Audio("sound/templar_speak3.wav");
+	templarSpeek4 = new Audio("sound/templar_speak4.wav");
+	templarSpeek5 = new Audio("sound/templar_speak5.wav");
+	templarSpeek6 = new Audio("sound/templar_speak6.wav");
+	templarSpeek7 = new Audio("sound/templar_speak7.wav");
+	templarSpeek8 = new Audio("sound/templar_speak8.wav");
+	templarSpeek9 = new Audio("sound/templar_speak9.wav");
+
+	ultraliskSpeek1 = new Audio("sound/ultralisk_speak1.wav");
+	ultraliskSpeek2 = new Audio("sound/ultralisk_speak2.wav");
+	ultraliskSpeek3 = new Audio("sound/ultralisk_speak3.wav");
+
+	zerglingSpeek1 = new Audio("sound/zergling_speak1.wav");
+	zerglingSpeek2 = new Audio("sound/zergling_speak2.wav");
+	zerglingSpeek3 = new Audio("sound/zergling_speak3.wav");
+	zerglingSpeek4 = new Audio("sound/zergling_speak4.wav");
+	zerglingSpeek5 = new Audio("sound/zergling_speak5.wav");
+
+	ziloneSpeek1 = new Audio("sound/zilone_speak1.wav");
+	ziloneSpeek2 = new Audio("sound/zilone_speak2.wav");
+	ziloneSpeek3 = new Audio("sound/zilone_speak3.wav");
+	ziloneSpeek4 = new Audio("sound/zoline_speak4.wav");
 	
 
 	p1Nexus = {
@@ -106,7 +156,7 @@ $(function(){
 	this.height = 42.25,
 	this.width=42.4,
 	this.x = gameFill.width/2,
-	this.y=height-60-35-100,
+	this.y=height-60-35-50,
 	this.row=0,
 	this.col=0,
 	this.heal=50+4,
@@ -122,7 +172,7 @@ $(function(){
 	this.firstMove = true,
 	this.notPaid = true,
 	this.attackSound = zerglingAttack,
-	this.deathSound = zerglingDead
+	this.deathSound = zerglingDeadBetter
 	}
 	//ultralisk
 	function ultralisk() {
@@ -130,7 +180,7 @@ $(function(){
 		this.height = 108,
 		this.width=110.125,
 		this.x = gameFill.width/2,
-		this.y = height-60-35-100,
+		this.y = height-60-35-50,
 		this.heal=200,
 		this.dmg=30,
 		this.cost=100,
@@ -154,7 +204,7 @@ $(function(){
 		this.height = 58,
 		this.width=43,
 		this.x = gameFill.width/2,
-		this.y=height-60-35-100,
+		this.y=height-60-35-50,
 		this.heal=50,
 		this.dmg=19,
 		this.cost=50,
@@ -177,7 +227,7 @@ $(function(){
 		this.height = 39.38,
 		this.width=42.5,
 		this.x = gameFill.width/2,
-		this.y=30+100,
+		this.y=30+50,
 		this.heal=20+4,
 		this.dmg=5+4,
 		this.cost=10,
@@ -193,7 +243,8 @@ $(function(){
 		this.firstMove = true,
 		this.notPaid = true,
 		this.attackSound = ghostAttack1,
-		this.deathSound = ghostDeadBetter
+		this.deathSound = ghostDeadBetter,
+		this.amountOfKill = 0
 	}
 
 		function zealot() {
@@ -201,7 +252,7 @@ $(function(){
 		this.height = 44.2,
 		this.width=41,
 		this.x = gameFill.width/2,
-		this.y=30+100,
+		this.y=30+50,
 		this.heal=150,
 		this.dmg=10,
 		this.range = 0,
@@ -224,10 +275,10 @@ $(function(){
 		this.height = 62.2,
 		this.width=57.1,
 		this.x = gameFill.width/2,
-		this.y=30+100,
+		this.y=30+50,
 		this.heal=100,
 		this.dmg=100,
-		this.cost=50,
+		this.cost=100,
 		this.type="templar",
 		this.col = 8,
 		this.atack = false, //atack or not
@@ -254,58 +305,166 @@ $(function(){
 	$(window).keydown(function (e) {
 		switch (e.keyCode){
 			case m:
-			//if(p2Nexus.coin >= unit1.cost){
+			if(p2Nexus.coin >= unit1.cost){
 				p2Units.push(new zergling);
 				p2Nexus.coin -= unit1.cost;
-			//}
-			//else{
+					switch(zerglingWord){
+						case 0:
+							zerglingSpeek1.play();
+						break;
+						case 1:
+							zerglingSpeek2.play();
+						break;
+						case 2:
+							zerglingSpeek3.play();
+						break;
+						case 3:
+							zerglingSpeek4.play();
+						break;
+						case 4:
+							zerglingSpeek5.play();
+						break;
+					}
+			}
+			else{
 				notEmoughMoneyP2.play();
-			//}
+			}
 			break;
 			case b:
-			//if(p2Nexus.coin >= ultrlsk.cost){
+			if(p2Nexus.coin >= ultrlsk.cost){
 				p2Units.push(new ultralisk);
 				p2Nexus.coin -= ultrlsk.cost;
-			//}
-			//else{
+					switch(ultraliskWord){
+						case 0:
+							ultraliskSpeek1.play();
+						break;
+						case 1:
+							ultraliskSpeek2.play();
+						break;
+						case 2:
+							ultraliskSpeek3.play();
+						break;
+					}
+			}
+			else{
 				notEmoughMoneyP2.play();
-			//}
+			}
 			break;
 			case n:
-			//if(p2Nexus.coin >= hidrlsk.cost){
+			if(p2Nexus.coin >= hidrlsk.cost){
 				p2Units.push(new hidralisk);
 				p2Nexus.coin -= hidrlsk.cost;
-			//}
-			//else{
+				switch(hidraliskWord){
+					case 0:
+						hidraliskSpeek1.play();
+					break;
+					case 1:
+						hidraliskSpeek2.play();
+					break;
+					case 2:
+						hidraliskSpeek3.play();
+					break;
+					case 3:
+						hidraliskSpeek4.play();
+					break;
+				}
+			}
+			else{
 				notEmoughMoneyP2.play();
-			//}
+			}
 			break;
 			case ee:
-			//if(p1Nexus.coin >= gst.cost){
+			if(p1Nexus.coin >= gst.cost){
 				p1Units.push(new ghost);
 				p1Nexus.coin -= gst.cost;
-			//}
-			//else{
+				switch(ghostWord){
+					case 0:
+						ghostSpeek1.play();
+					break;
+					case 1:
+						ghostSpeek2.play();
+					break;
+					case 2:
+						ghostSpeek3.play();
+					break;
+					case 3:
+						ghostSpeek4.play();
+					break;	
+					case 4:
+						ghostSpeek6.play();
+					break;
+					case 5:
+						ghostSpeek7.play();
+					break;
+					case 6:
+						ghostSpeek8.play();
+					break;
+				}
+			}
+			else{
 				notEmoughMoneyP1.play();
-			//}
+			}
 			break;
 			case w:
-			//if(p1Nexus.coin >= zilon.cost){
+			if(p1Nexus.coin >= zilon.cost){
 				p1Units.push(new zealot);
 				p1Nexus.coin -= zilon.cost;
-			//}
-			//else{
+				switch(ziloneWord){
+					case 0:
+						ziloneSpeek1.play();
+					break;
+					case 1:
+						ziloneSpeek2.play();
+					break;
+					case 2:
+						ziloneSpeek3.play();
+					break;
+					case 3:
+						ziloneSpeek4.play();
+					break;
+				}
+			}
+			else{
 				notEmoughMoneyP1.play();
-			//}
+			}
 			break;
 			case q:
-		//if(p1Nexus.coin >= tmplr.cost){
+		if(p1Nexus.coin >= tmplr.cost){
 			p1Units.push(new templar);
 			p1Nexus.coin -= tmplr.cost;
-		//}
-		//else{
+			switch(templarWord){
+				case 0:
+					templarSpeek1.play();
+				break;
+				case 1:
+					templarSpeek2.play();
+				break;
+				case 2:
+					templarSpeek3.play();
+				break;
+				case 3:
+					templarSpeek4.play();
+				break;
+				case 4:
+					templarSpeek5.play();
+				break;
+				case 5:
+					templarSpeek6.play();
+				break;
+				case 6:
+					templarSpeek7.play();
+				break;
+				case 7:
+					templarSpeek8.play();
+				break;
+				case 8:
+					templarSpeek9.play();
+				break;
+			}
+		}
+		else{
 			notEmoughMoneyP1.play();
-		//}
+		}
 		break;
 		}
 	});
@@ -338,7 +497,13 @@ $(function(){
 
 
 function update() {
-	//p2 units
+	templarWord = Math.floor(Math.random()*8);
+	ziloneWord = Math.floor(Math.random()*3);
+	ghostWord = Math.floor(Math.random()*6);
+	hidraliskWord = Math.floor(Math.random()*3);
+	ultraliskWord = Math.floor(Math.random()*2);
+	zerglingWord = Math.floor(Math.random()*4);
+
 	if(p2Nexus.heal <= 0){
 		gameStage = 2;
 	}
@@ -669,6 +834,9 @@ function update() {
 							p1Units[i].target.notPaid = false;
 							}
 							if(p1Units[i].target.row == p1Units[i].target.deadRow){
+								p1Units[i].amountOfKill+=1;
+								if(p1Units[i].amountOfKill == 3)
+									ghostSpeek5.play();
 								p1Units[i].target.deathSound.play();
 								p1Units[i].target = p2Nexus;//Not shure about that
 								p1Units[i].atack = false;
@@ -823,7 +991,7 @@ function update() {
 						p2Units[i].atack = true;
 						if(p2Units[i].height*p2Units[i].row == p2Units[i].height*p2Units[i].lastSprite){ //if is last aatck sprite
 							if(p2Units[i].attackSound.ended)
-							p2Units[i].target.heal-=p2Units[i].dmg;
+								p2Units[i].target.heal-=p2Units[i].dmg;
 							p2Units[i].attackSound.play();
 							
 							console.log(p2Units[i].target.heal);
@@ -898,9 +1066,9 @@ function render() {
 	ctx.fillStyle = "#000"
 	//1p control panel
 
-	ctx.fillText("100",(width-42/2-16),(15+40+16));//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
-	ctx.fillText("50",(width-(42*2)/2-42),(15+40+16));//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
-	ctx.fillText("10",(width-(42*3)/2-30*2),(15+40+16));//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
+	ctx.fillText(tmplr.cost,(width-42/2-16),(15+40+16));//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
+	ctx.fillText(zilon.cost,(width-(42*2)/2-42),(15+40+16));//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
+	ctx.fillText(gst.cost,(width-(42*3)/2-30*2),(15+40+16));//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
 	ctx.fillText("q",(width-42/2),12);
 	ctx.fillText("w",( width-(42*2)+35/2 ),12);
 	ctx.fillText("e",( width-(42*3)+30/2 ),12);
@@ -908,8 +1076,8 @@ function render() {
 	ctx.drawImage(p2fUnit,10,height-40-15,40,40);  //first unit
 	ctx.drawImage(p2sUnit,58,height-40-15,40,40); // second unit
 	ctx.drawImage(p2tUnit,52*2,height-40-15,40,40); //third unit
-	ctx.fillText("100",10,height-2);//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
-	ctx.fillText("50",58,height-2);//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
+	ctx.fillText(ultrlsk.cost,10,height-2);//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
+	ctx.fillText(hidrlsk.cost,58,height-2);//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
 	ctx.fillText(unit1.cost,52*2,height-2);//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
 	ctx.fillText("b",10,height-58);
 	ctx.fillText("n",58,height-58);
