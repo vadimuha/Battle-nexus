@@ -9,8 +9,10 @@ $(function(){
 	gameFill.width = 800;
 	gameFill.height = 600;
 	width = gameFill.width;
+	gameStage = -1;
 	height = gameFill.height;
-	mvSpeed = 3;
+	mvSpeed = 7;
+	//loading resourses 
 	terrain = new Image();
 	terrain.src = "sprites/terrain.jpg";
 	p1fUnit = new Image(); // first 1p unit
@@ -29,6 +31,31 @@ $(function(){
 	p1NexusImg.src = "sprites/Command_Center.gif";
 	p2NexusImg = new Image();
 	p2NexusImg.src = "sprites/Lair.gif";
+	//system sound
+	notEmoughMoneyP1 = new Audio("sound/not_enough_money1.wav");
+	notEmoughMoneyP2 = new Audio("sound/not_enough_money2.wav");
+	//attacks and deaths
+	ziloneAttack = new Audio("sound/zilone_attack.wav");
+	ziloneDeath = new Audio("sound/zilone_death.wav");
+	ziloneDeathBetter = new Audio("sound/zilone_death2.wav");
+	ghostAttack1 = new Audio("sound/ghost_attack.wav");
+	ghostAttack1.playbackRate = 1.0;
+	ghostAttack2 = new Audio("sound/ghost_attack1.wav");
+	ghostDead = new Audio("sound/ghost_dead.wav");
+	ghostDeadBetter = new Audio("sound/ghost_dead_better.wav");
+	hidraliskAttack = new Audio("sound/hidralisk_attack.wav");
+	hidraliskAttack.playbackRate = 1.0;
+	hidraliskDead = new Audio("sound/hidralisk_death.wav");
+	templarAttack = new Audio("sound/templar_attack.wav");
+	templarAttack.playbackRate = 1.0;
+	templarDead = new Audio("sound/templar_death.wav");
+	ultraliskAttack = new Audio("sound/ultralisk_attack.wav");
+	ultraliskDead = new Audio("sound/ultralisk_dead.wav");
+	zerglingAttack = new Audio("sound/zergling_attack.wav");
+	zerglingAttack.playbackRate = 1;
+	zerglingDead = new Audio("sound/zergling_dead.wav");
+	zerglingDeadBetter = new Audio("sound/zergling_dead1.wav");
+	
 
 	p1Nexus = {
 		image:p1NexusImg,
@@ -50,10 +77,13 @@ $(function(){
 		height:107,
 		type:"nexus"
 	}
+	if(gameStage == -1){
 	setInterval(function () {
 			p1Nexus.coin++;
 			p2Nexus.coin++;
 		},2000);
+}
+
 	p2Units = []; // array of 2 player units
 	p1Units = []; //array of 1 player units
 	//units
@@ -79,8 +109,8 @@ $(function(){
 	this.y=height-60-35-100,
 	this.row=0,
 	this.col=0,
-	this.heal=50,
-	this.dmg=5,
+	this.heal=50+4,
+	this.dmg=3+4,
 	this.cost=10,
 	this.type="zergling",
 	this.style = "mele",
@@ -90,7 +120,9 @@ $(function(){
 	this.lastSprite = 10,
 	this.deadRow = 13,
 	this.firstMove = true,
-	this.notPaid = true
+	this.notPaid = true,
+	this.attackSound = zerglingAttack,
+	this.deathSound = zerglingDead
 	}
 	//ultralisk
 	function ultralisk() {
@@ -112,7 +144,9 @@ $(function(){
 		this.lastSprite = 13,
 		this.deadRow = 15,
 		this.firstMove = true,
-		this.notPaid = true
+		this.notPaid = true,
+		this.attackSound = ultraliskAttack,
+		this.deathSound = ultraliskDead
 	}
 	//hidralisk
 		function hidralisk() {
@@ -122,7 +156,7 @@ $(function(){
 		this.x = gameFill.width/2,
 		this.y=height-60-35-100,
 		this.heal=50,
-		this.dmg=20,
+		this.dmg=19,
 		this.cost=50,
 		this.type="hidralisk",
 		this.col = 0,
@@ -134,7 +168,9 @@ $(function(){
 		this.lastSprite = 11,
 		this.deadRow = 12,
 		this.firstMove = true,
-		this.notPaid = true
+		this.notPaid = true,
+		this.attackSound = hidraliskAttack,
+		this.deathSound = hidraliskDead
 	}
 		function ghost() {
 		this.img = ghostImg,
@@ -142,8 +178,8 @@ $(function(){
 		this.width=42.5,
 		this.x = gameFill.width/2,
 		this.y=30+100,
-		this.heal=30,
-		this.dmg=5,
+		this.heal=20+4,
+		this.dmg=5+4,
 		this.cost=10,
 		this.type="ghost",
 		this.col = 8,
@@ -155,7 +191,9 @@ $(function(){
 		this.lastSprite = 12,
 		this.deadRow = 13,
 		this.firstMove = true,
-		this.notPaid = true
+		this.notPaid = true,
+		this.attackSound = ghostAttack1,
+		this.deathSound = ghostDeadBetter
 	}
 
 		function zealot() {
@@ -165,7 +203,7 @@ $(function(){
 		this.x = gameFill.width/2,
 		this.y=30+100,
 		this.heal=150,
-		this.dmg=15,
+		this.dmg=10,
 		this.range = 0,
 		this.cost=50,
 		this.type="zealot",
@@ -177,8 +215,9 @@ $(function(){
 		this.lastSprite = 11,
 		this.deadRow = 13,
 		this.firstMove = true,
-		this.notPaid = true
-
+		this.notPaid = true,
+		this.attackSound = ziloneAttack,
+		this.deathSound = ziloneDeathBetter
 	}
 		function templar() {
 		this.img = templarImg,
@@ -199,7 +238,9 @@ $(function(){
 		this.lastSprite = 16,
 		this.deadRow = 18,
 		this.firstMove = true,
-		this.notPaid = true
+		this.notPaid = true,
+		this.attackSound = templarAttack,
+		this.deathSound = templarDead
 	}
 	
 	//examples
@@ -213,41 +254,59 @@ $(function(){
 	$(window).keydown(function (e) {
 		switch (e.keyCode){
 			case m:
-			if(p2Nexus.coin >= unit1.cost){
-			p2Units.push(new zergling);
-			p2Nexus.coin -= unit1.cost;
-			}
-			break;
-			case n:
-			if(p2Nexus.coin >= ultrlsk.cost){
-			p2Units.push(new ultralisk);
-			p2Nexus.coin -= ultrlsk.cost;
-			}
+			//if(p2Nexus.coin >= unit1.cost){
+				p2Units.push(new zergling);
+				p2Nexus.coin -= unit1.cost;
+			//}
+			//else{
+				notEmoughMoneyP2.play();
+			//}
 			break;
 			case b:
-			if(p2Nexus.coin >= hidrlsk.cost){
-			p2Units.push(new hidralisk);
-			p2Nexus.coin -= hidrlsk.cost;
-			}
+			//if(p2Nexus.coin >= ultrlsk.cost){
+				p2Units.push(new ultralisk);
+				p2Nexus.coin -= ultrlsk.cost;
+			//}
+			//else{
+				notEmoughMoneyP2.play();
+			//}
+			break;
+			case n:
+			//if(p2Nexus.coin >= hidrlsk.cost){
+				p2Units.push(new hidralisk);
+				p2Nexus.coin -= hidrlsk.cost;
+			//}
+			//else{
+				notEmoughMoneyP2.play();
+			//}
 			break;
 			case ee:
-			if(p1Nexus.coin >= gst.cost){
-			p1Units.push(new ghost);
-			p1Nexus.coin -= gst.cost;
-			}
+			//if(p1Nexus.coin >= gst.cost){
+				p1Units.push(new ghost);
+				p1Nexus.coin -= gst.cost;
+			//}
+			//else{
+				notEmoughMoneyP1.play();
+			//}
 			break;
 			case w:
-			if(p1Nexus.coin >= zilon.cost){
-			p1Units.push(new zealot);
-			p1Nexus.coin -= zilon.cost;
-			}
+			//if(p1Nexus.coin >= zilon.cost){
+				p1Units.push(new zealot);
+				p1Nexus.coin -= zilon.cost;
+			//}
+			//else{
+				notEmoughMoneyP1.play();
+			//}
 			break;
 			case q:
-		if(p1Nexus.coin >= tmplr.cost){
+		//if(p1Nexus.coin >= tmplr.cost){
 			p1Units.push(new templar);
 			p1Nexus.coin -= tmplr.cost;
-		}
-			break;
+		//}
+		//else{
+			notEmoughMoneyP1.play();
+		//}
+		break;
 		}
 	});
 	
@@ -258,16 +317,35 @@ $(function(){
 	})
 
 //game loop
-	setInterval(function () {
-		update();
-		render();
+
+		setInterval(function () {
+		if(gameStage == -1){
+			update();
+			render();
+		}
+
+	else if(gameStage == 1){
+		alert("p1");
+	}
+	else if(gameStage == 2){
+		alert("p2");
+	}
+
 	},1000/15);
+	
 
 });
 
 
 function update() {
 	//p2 units
+	if(p2Nexus.heal <= 0){
+		gameStage = 2;
+	}
+	else if(p1Nexus.heal<=0){
+		gameStage = 1;
+	}
+
 	for(var i=0; i < p2Units.length; i++) {
 		if(p2Units[i].type == "zergling"){ // if it's zergling
 
@@ -276,7 +354,10 @@ function update() {
 				p2Units[i].target = p1Nexus;
 				if(p2Units[i].target.type == "nexus"){		
 				if(p2Units[i].height*p2Units[i].row == p2Units[i].height*p2Units[i].lastSprite){
-					p1Nexus.heal -= p2Units[i].dmg;
+					if(p2Units[i].attackSound.ended)
+						p1Nexus.heal -= p2Units[i].dmg;
+					p2Units[i].attackSound.play();
+
 				}
 			}
 		}
@@ -297,7 +378,9 @@ function update() {
 				console.log(p2Units[i].target)
 			if(p2Units[i].target.type == "nexus"){		
 				if(p2Units[i].height*p2Units[i].row == p2Units[i].height*p2Units[i].lastSprite){
-					p1Nexus.heal -= p2Units[i].dmg;
+					if(p2Units[i].attackSound.ended)
+						p1Nexus.heal -= p2Units[i].dmg;
+					p2Units[i].attackSound.play();		
 				}
 			}
 		}
@@ -322,7 +405,9 @@ function update() {
 				p2Units[i].target = p2Nexus;
 				if(p2Units[i].target.type == "nexus"){		
 					if(p2Units[i].height*p2Units[i].row == p2Units[i].height*p2Units[i].lastSprite){
+					if(p2Units[i].attackSound.ended)
 						p1Nexus.heal -= p2Units[i].dmg;
+					p2Units[i].attackSound.play();	
 					}
 				}				
 
@@ -352,7 +437,9 @@ function update() {
 				p1Units[i].target = p2Nexus;
 				if(p1Units[i].target.type == "nexus"){		
 				if(p1Units[i].height*p1Units[i].row == p1Units[i].height*p1Units[i].lastSprite){
-					p2Nexus.heal -= p1Units[i].dmg;
+					if(p1Units[i].attackSound.ended)
+						p2Nexus.heal -= p1Units[i].dmg;
+					p1Units[i].attackSound.play();
 				}
 			}
 
@@ -375,7 +462,9 @@ function update() {
 				p1Units[i].target = p2Nexus;
 				if(p1Units[i].target.type == "nexus"){		
 				if(p1Units[i].height*p1Units[i].row == p1Units[i].height*p1Units[i].lastSprite){
-					p2Nexus.heal -= p1Units[i].dmg;
+					if(p1Units[i].attackSound.ended)
+						p2Nexus.heal -= p1Units[i].dmg;
+					p1Units[i].attackSound.play();
 				}
 			}
 			}
@@ -394,7 +483,9 @@ function update() {
 				p1Units[i].target = p2Nexus;
 				if(p1Units[i].target.type == "nexus"){		
 				if(p1Units[i].height*p1Units[i].row == p1Units[i].height*p1Units[i].lastSprite){
-					p2Nexus.heal -= p1Units[i].dmg;
+					if(p1Units[i].attackSound.ended)
+						p2Nexus.heal -= p1Units[i].dmg;
+					p1Units[i].attackSound.play();
 				}
 			}
 
@@ -494,17 +585,19 @@ function update() {
 					//####################template of attack####################### 
 				if(p2Units[j].style != "range"){
 					if(collision(p2Units[j],p2Units[j].target)){ //if p2 touches target
-						if(p2Units[j].target.notPaid){
-						p2Units[j].atack = true;
-						p2Units[j].target.notPaid = false;
-						}
+						p2Units[j].atack = true;						
 						if(p2Units[j].height*p2Units[j].row == p2Units[j].height*p2Units[j].lastSprite){ //if is last aatck sprite
-							p2Units[j].target.heal-=p2Units[j].dmg; //do damage
+							if(p2Units[j].attackSound.ended)
+								p2Units[j].target.heal-=p2Units[j].dmg;
+							p2Units[j].attackSound.play();
 							console.log(p2Units[j].target.heal);
 						}
 						if(p2Units[j].target.heal <= 0){
+							if(p2Units[j].target.notPaid){
 							p2Nexus.coin += p2Units[j].target.cost/2;
+							}
 							if(p2Units[j].target.row == p2Units[j].target.deadRow){
+								p2Units[j].target.deathSound.play();
 								p2Units[j].target = p1Nexus;
 								p2Units[j].atack = false;
 							}
@@ -517,7 +610,9 @@ function update() {
 						if(collisionRangeD(p2Units[j],p2Units[j].target)){ //if p2 touches target
 						p2Units[j].atack = true;
 						if(p2Units[j].height*p2Units[j].row == p2Units[j].height*p2Units[j].lastSprite){ //if is last aatck sprite
-							p2Units[j].target.heal-=p2Units[j].dmg; //do damage
+							if(p2Units[j].attackSound.ended)
+								p2Units[j].target.heal-=p2Units[j].dmg;
+							p2Units[j].attackSound.play();
 							console.log(p2Units[j].target.heal);
 						}
 						if(p2Units[j].target.heal <= 0){
@@ -526,6 +621,7 @@ function update() {
 							p2Units[j].target.notPaid = false;
 							}
 							if(p2Units[j].target.row == p2Units[j].target.deadRow){
+								p2Units[j].target.deathSound.play();
 								p2Units[j].target = p1Nexus;
 								p2Units[j].atack = false;
 							}
@@ -538,7 +634,9 @@ function update() {
 					if(collision(p1Units[i],p1Units[i].target)){ //if p2Units touches target
 						p1Units[i].atack = true;
 						if(p1Units[i].height*p1Units[i].row == p1Units[i].height*p1Units[i].lastSprite){ //if is last aatck sprite
-							p1Units[i].target.heal-=p1Units[i].dmg; //do damage
+							if(p1Units[i].attackSound.ended)
+								p1Units[i].target.heal-=p1Units[i].dmg; 
+							p1Units[i].attackSound.play();
 							console.log(p1Units[i].target.heal);
 						}
 						if(p1Units[i].target.heal <= 0){
@@ -547,6 +645,7 @@ function update() {
 							p1Units[i].target.notPaid = false;
 							}
 							if(p1Units[i].target.row == p1Units[i].target.deadRow){
+								p1Units[i].target.deathSound.play();
 								p1Units[i].target = p2Nexus;
 								p1Units[i].atack = false;
 							}
@@ -559,7 +658,9 @@ function update() {
 						if(collisionRange(p1Units[i],p1Units[i].target)){ //if p2Units touches target
 						p1Units[i].atack = true;
 						if(p1Units[i].height*p1Units[i].row == p1Units[i].height*p1Units[i].lastSprite){ //if is last aatck sprite
-							p1Units[i].target.heal-=p1Units[i].dmg; //do damage
+							if(p1Units[i].attackSound.ended)
+								p1Units[i].target.heal-=p1Units[i].dmg; 
+							p1Units[i].attackSound.play();
 							console.log(p1Units[i].target.heal);
 						}
 						if(p1Units[i].target.heal <= 0){
@@ -568,6 +669,7 @@ function update() {
 							p1Units[i].target.notPaid = false;
 							}
 							if(p1Units[i].target.row == p1Units[i].target.deadRow){
+								p1Units[i].target.deathSound.play();
 								p1Units[i].target = p2Nexus;//Not shure about that
 								p1Units[i].atack = false;
 							}
@@ -671,7 +773,9 @@ function update() {
 					if(collision(p1Units[j],p1Units[j].target)){ //if p2Units touches target
 						p1Units[j].atack = true;
 						if(p1Units[j].height*p1Units[j].row == p1Units[j].height*p1Units[j].lastSprite){ //if is last aatck sprite
-							p1Units[j].target.heal-=p1Units[j].dmg; //do damage
+							if(p1Units[j].attackSound.ended)
+								p1Units[j].target.heal-=p1Units[j].dmg;
+							p1Units[j].attackSound.play();
 							console.log(p1Units[j].target.heal);
 						}
 						if(p1Units[j].target.heal <= 0){
@@ -680,6 +784,7 @@ function update() {
 							p1Units[j].target.notPaid = false;
 							}
 							if(p1Units[j].target.row == p1Units[j].target.deadRow){
+								p1Units[j].target.deathSound.play();
 								p1Units[j].target = p2Nexus;
 								p1Units[j].atack = false;
 							}
@@ -692,7 +797,9 @@ function update() {
 						if(collisionRange(p1Units[j],p1Units[j].target)){ //if p2Units touches target
 						p1Units[j].atack = true;
 						if(p1Units[j].height*p1Units[j].row == p1Units[j].height*p1Units[j].lastSprite){ //if is last aatck sprite
-							p1Units[j].target.heal-=p1Units[j].dmg; //do damage
+							if(p1Units[j].attackSound.ended)
+								p1Units[j].target.heal-=p1Units[j].dmg;
+							p1Units[j].attackSound.play();
 							console.log(p1Units[j].target.heal);
 						}
 						if(p1Units[j].target.heal <= 0){
@@ -701,6 +808,7 @@ function update() {
 							p1Units[j].target.notPaid = false;
 							}
 							if(p1Units[j].target.row == p1Units[j].target.deadRow){
+								p1Units[j].target.deathSound.play();
 								p1Units[j].target = p2Nexus;//Not shure about that
 								p1Units[j].atack = false;
 							}
@@ -714,7 +822,10 @@ function update() {
 					if(collision(p2Units[i],p2Units[i].target)){ //if p2 touches target
 						p2Units[i].atack = true;
 						if(p2Units[i].height*p2Units[i].row == p2Units[i].height*p2Units[i].lastSprite){ //if is last aatck sprite
-							p2Units[i].target.heal-=p2Units[i].dmg; //do damage
+							if(p2Units[i].attackSound.ended)
+							p2Units[i].target.heal-=p2Units[i].dmg;
+							p2Units[i].attackSound.play();
+							
 							console.log(p2Units[i].target.heal);
 						}
 						if(p2Units[i].target.heal <= 0){
@@ -723,6 +834,7 @@ function update() {
 							p2Units[i].target.notPaid = false;
 							}
 							if(p2Units[i].target.row == p2Units[i].target.deadRow){
+								p2Units[i].target.deathSound.play();
 								p2Units[i].target = p1Nexus;
 								p2Units[i].atack = false;
 							}
@@ -735,6 +847,7 @@ function update() {
 						if(collisionRangeD(p2Units[i],p2Units[i].target)){ //if p2 touches target
 						p2Units[i].atack = true;
 						if(p2Units[i].height*p2Units[i].row == p2Units[i].height*p2Units[i].lastSprite){ //if is last aatck sprite
+							p2Units[i].attackSound.play();
 							p2Units[i].target.heal-=p2Units[i].dmg; //do damage
 							console.log(p2Units[i].target.heal);
 						}
@@ -744,6 +857,7 @@ function update() {
 							p2Units[i].target.notPaid = false;
 							}
 							if(p2Units[i].target.row == p2Units[i].target.deadRow){
+								p2Units[i].target.deathSound.play();
 								p2Units[i].target = p1Nexus;
 								p2Units[i].atack = false;
 							}
