@@ -7,11 +7,14 @@ $(function(){
 	gameFill = document.getElementById('gameFill');
 	ctx = gameFill.getContext("2d");
 	gameFill.width = 800;
-	gameFill.height = 600;
+	gameFill.height = 550;
+	resetBut = $("#resetBut");
+	resetBut.hide();
 	width = gameFill.width;
 	gameStage = -1;
 	height = gameFill.height;
-	mvSpeed = 7;
+	mvSpeed = 3;
+	soundNotPlayed = true;
 	templarWord = 0;
 	ziloneWord = 0;
 	ghostWord = 0;
@@ -40,6 +43,8 @@ $(function(){
 	//system sound
 	notEmoughMoneyP1 = new Audio("sound/not_enough_money1.wav");
 	notEmoughMoneyP2 = new Audio("sound/not_enough_money2.wav");
+	menuClick = new Audio("sound/menu_click.wav");
+	win = new Audio("sound/youwin.wav");
 	//attacks and deaths
 	ziloneAttack = new Audio("sound/zilone_attack.wav");
 	ziloneDeath = new Audio("sound/zilone_death.wav");
@@ -159,7 +164,7 @@ $(function(){
 	this.y=height-60-35-50,
 	this.row=0,
 	this.col=0,
-	this.heal=50+4,
+	this.heal=50,
 	this.dmg=3+4,
 	this.cost=10,
 	this.type="zergling",
@@ -227,9 +232,9 @@ $(function(){
 		this.height = 39.38,
 		this.width=42.5,
 		this.x = gameFill.width/2,
-		this.y=30+50,
+		this.y=30+60,
 		this.heal=20+4,
-		this.dmg=5+4,
+		this.dmg=5+8,
 		this.cost=10,
 		this.type="ghost",
 		this.col = 8,
@@ -252,7 +257,7 @@ $(function(){
 		this.height = 44.2,
 		this.width=41,
 		this.x = gameFill.width/2,
-		this.y=30+50,
+		this.y=30+60,
 		this.heal=150,
 		this.dmg=10,
 		this.range = 0,
@@ -275,7 +280,7 @@ $(function(){
 		this.height = 62.2,
 		this.width=57.1,
 		this.x = gameFill.width/2,
-		this.y=30+50,
+		this.y=30+60,
 		this.heal=100,
 		this.dmg=100,
 		this.cost=100,
@@ -367,7 +372,7 @@ $(function(){
 					case 3:
 						hidraliskSpeek4.play();
 					break;
-				}
+			}
 			}
 			else{
 				notEmoughMoneyP2.play();
@@ -469,11 +474,7 @@ $(function(){
 		}
 	});
 	
-	$(gameFill).mousemove(function (e) {
-		var mouseX = e.pageX - gameFill.offsetLeft;
-		var mouseY = e.pageY - gameFill.offsetTop;
-		//console.log(mouseY);
-	})
+
 
 //game loop
 
@@ -484,10 +485,22 @@ $(function(){
 		}
 
 	else if(gameStage == 1){
-		alert("p1");
+		//p1
+		ctx.fillText("BOTTOM PLAYER WIN",350,200);
+		resetBut.show();
+		if(soundNotPlayed){
+			win.play();
+			soundNotPlayed = false;
+		}
 	}
 	else if(gameStage == 2){
-		alert("p2");
+		//p2
+		ctx.fillText("TOP PLAYER WIN",350,200);
+		resetBut.show();
+		if(soundNotPlayed){
+			win.play();
+			soundNotPlayed = false;
+		}
 	}
 
 	},1000/15);
@@ -495,7 +508,18 @@ $(function(){
 
 });
 
-
+function restart(){
+	menuClick.play();
+	gameStage = -1;
+	p1Nexus.heal = 1000;
+	p2Nexus.heal = 1000;
+	p1Units.splice(0,p1Units.length);
+	p2Units.splice(0,p2Units.length);
+	resetBut.hide();
+	p1Nexus.coin = 30;
+	p2Nexus.coin = 30;
+	soundNotPlayed = true;
+}
 function update() {
 	templarWord = Math.floor(Math.random()*8);
 	ziloneWord = Math.floor(Math.random()*3);
@@ -513,7 +537,7 @@ function update() {
 
 	for(var i=0; i < p2Units.length; i++) {
 		if(p2Units[i].type == "zergling"){ // if it's zergling
-
+			if(p1Units.length == 0){
 			if(p2Units[i].y<=30+100 && p2Units[i].x <= width/2+100) { // if comes to nexus
 				p2Units[i].atack = true;
 				p2Units[i].target = p1Nexus;
@@ -528,11 +552,11 @@ function update() {
 		}
 
 
-			else if(p1Units.length == 0){
-			p2Units[i].y-=mvSpeed; //improved speed for develop in release remove to -1
+			else{
+			p2Units[i].y-=mvSpeed; 
 			p2Units[i].col = 0;
-		} // don't touch above it's movement
-		
+		}
+		}
 	}
 	//ultralisk logic
 	if(p2Units[i].type == "ultralisk"){
@@ -540,7 +564,7 @@ function update() {
 			if(p2Units[i].y<=30+100) { // if comes to nexus
 				p2Units[i].atack = true;
 				p2Units[i].target = p1Nexus;
-				console.log(p2Units[i].target)
+				
 			if(p2Units[i].target.type == "nexus"){		
 				if(p2Units[i].height*p2Units[i].row == p2Units[i].height*p2Units[i].lastSprite){
 					if(p2Units[i].attackSound.ended)
@@ -707,7 +731,7 @@ function update() {
 						if(collision(p1Units[i],p2Units[j])){
 							if(p1Units[i].target == 0 || p1Units[i].target.type == "nexus"){
 								p1Units[i].target = p2Units[j];
-								console.log(p1Units[i].target);
+								
 							}
 						}
 					}
@@ -715,7 +739,7 @@ function update() {
 								if(collisionRange(p1Units[i],p2Units[j]) ) {
 								if(p1Units[i].target == 0 || p1Units[i].target.type == "nexus"){
 									p1Units[i].target = p2Units[j];
-									console.log(p1Units[i].target);
+									
 								}
 							}
 
@@ -723,9 +747,10 @@ function update() {
 
 					if(p2Units[j].style != "range") {
 						if(collision(p2Units[j],p1Units[i]) ){
+							
 							if(p2Units[j].target == 0 || p2Units[j].target.type == "nexus"){ // if don't have target
 								p2Units[j].target = p1Units[i];	
-								console.log(p2Units[j].target);
+								
 							}
 						}
 					}
@@ -733,7 +758,7 @@ function update() {
 						 if(collisionRangeD(p2Units[j],p1Units[i]) ){
 							if(p2Units[j].target == 0 || p2Units[j].target.type == "nexus"){ // if don't have target
 								p2Units[j].target = p1Units[i];	
-								console.log(p2Units[j].target);
+								
 
 							}
 						}
@@ -755,11 +780,12 @@ function update() {
 							if(p2Units[j].attackSound.ended)
 								p2Units[j].target.heal-=p2Units[j].dmg;
 							p2Units[j].attackSound.play();
-							console.log(p2Units[j].target.heal);
+							
 						}
 						if(p2Units[j].target.heal <= 0){
 							if(p2Units[j].target.notPaid){
-							p2Nexus.coin += p2Units[j].target.cost/2;
+								p2Nexus.coin += p2Units[j].target.cost/2;
+								p2Units[j].target.notPaid = false;
 							}
 							if(p2Units[j].target.row == p2Units[j].target.deadRow){
 								p2Units[j].target.deathSound.play();
@@ -778,7 +804,7 @@ function update() {
 							if(p2Units[j].attackSound.ended)
 								p2Units[j].target.heal-=p2Units[j].dmg;
 							p2Units[j].attackSound.play();
-							console.log(p2Units[j].target.heal);
+							
 						}
 						if(p2Units[j].target.heal <= 0){
 							if(p2Units[j].target.notPaid){
@@ -802,7 +828,7 @@ function update() {
 							if(p1Units[i].attackSound.ended)
 								p1Units[i].target.heal-=p1Units[i].dmg; 
 							p1Units[i].attackSound.play();
-							console.log(p1Units[i].target.heal);
+							
 						}
 						if(p1Units[i].target.heal <= 0){
 							if(p1Units[i].target.notPaid){
@@ -826,7 +852,7 @@ function update() {
 							if(p1Units[i].attackSound.ended)
 								p1Units[i].target.heal-=p1Units[i].dmg; 
 							p1Units[i].attackSound.play();
-							console.log(p1Units[i].target.heal);
+							
 						}
 						if(p1Units[i].target.heal <= 0){
 							if(p1Units[i].target.notPaid){
@@ -867,7 +893,7 @@ function update() {
 							}
 						}
 						else if(p2Units[i].style == "range"){ // and if he range
-							if(!collisionRange(p2Units[i],p2Units[i].target) || p2Units[i].target == 0 ) {//if p1 doesn't touches his target or don't have target
+							if(!collisionRangeD(p2Units[i],p2Units[i].target) || p2Units[i].target == 0) {//if p1 doesn't touches his target or don't have target
 								if(p2Units[i].firstMove){
 								p2Units[i].y-=mvSpeed;
 								p2Units[i].firstMove=false;
@@ -884,7 +910,7 @@ function update() {
 							}
 						}
 						else if(p1Units[j].style=="range"){ // if p2Units is range to next
-							if(!collisionRangeD(p1Units[j],p1Units[j].target) || p1Units[j].target == 0){ // if thet don't touches move
+							if(!collisionRange(p1Units[j],p1Units[j].target) || p1Units[j].target == 0){ // if thet don't touches move
 								if(p1Units[j].firstMove){
 								p1Units[j].y+=mvSpeed;
 								p1Units[j].firstMove = false;
@@ -894,17 +920,18 @@ function update() {
 						//target selection
 					if(p2Units[i].style != "range"){
 						if(collision(p2Units[i],p1Units[j])){
+							
 							if(p2Units[i].target == 0 || p2Units[i].target.type == "nexus"){
 								p2Units[i].target = p1Units[j];
-								console.log(p2Units[i].target);
+								
 							}
 						}
 					}
 						else if(p2Units[i].style == "range"){
-								if(collisionRange(p2Units[i],p1Units[j]) ) {
+								if(collisionRangeD(p2Units[i],p1Units[j]) ) {
 								if(p2Units[i].target == 0 || p2Units[i].target.type == "nexus"){
 									p2Units[i].target = p1Units[j];
-									console.log(p2Units[i].target);
+									
 								}
 							}
 
@@ -914,15 +941,15 @@ function update() {
 						if(collision(p1Units[j],p2Units[i]) ){
 							if(p1Units[j].target == 0 || p1Units[j].target.type == "nexus"){ // if don't have target
 								p1Units[j].target = p2Units[i];	
-								console.log(p1Units[j].target);
+								
 							}
 						}
 					}
 					else if(p1Units[j].style == "range"){
-						 if(collisionRangeD(p1Units[j],p2Units[i]) ){
+						 if(collisionRange(p1Units[j],p2Units[i]) ){
 							if(p1Units[j].target == 0 || p1Units[j].target.type == "nexus"){ // if don't have target
 								p1Units[j].target = p2Units[i];	
-								console.log(p1Units[j].target);
+								
 
 							}
 						}
@@ -932,7 +959,7 @@ function update() {
 						p2Units[i].atack = true;
 					}
 					else if(p2Units[i].style == "range"){
-						if(collisionRange(p2Units[i],p2Units[i].target) ){
+						if(collisionRangeD(p2Units[i],p2Units[i].target) ){
 							p2Units[i].atack = true;
 						}
 					}
@@ -944,7 +971,7 @@ function update() {
 							if(p1Units[j].attackSound.ended)
 								p1Units[j].target.heal-=p1Units[j].dmg;
 							p1Units[j].attackSound.play();
-							console.log(p1Units[j].target.heal);
+							
 						}
 						if(p1Units[j].target.heal <= 0){
 							if(p1Units[j].target.notPaid){
@@ -968,7 +995,7 @@ function update() {
 							if(p1Units[j].attackSound.ended)
 								p1Units[j].target.heal-=p1Units[j].dmg;
 							p1Units[j].attackSound.play();
-							console.log(p1Units[j].target.heal);
+							
 						}
 						if(p1Units[j].target.heal <= 0){
 							if(p1Units[j].target.notPaid){
@@ -994,7 +1021,7 @@ function update() {
 								p2Units[i].target.heal-=p2Units[i].dmg;
 							p2Units[i].attackSound.play();
 							
-							console.log(p2Units[i].target.heal);
+							
 						}
 						if(p2Units[i].target.heal <= 0){
 							if(p2Units[i].target.notPaid){
@@ -1017,7 +1044,7 @@ function update() {
 						if(p2Units[i].height*p2Units[i].row == p2Units[i].height*p2Units[i].lastSprite){ //if is last aatck sprite
 							p2Units[i].attackSound.play();
 							p2Units[i].target.heal-=p2Units[i].dmg; //do damage
-							console.log(p2Units[i].target.heal);
+							
 						}
 						if(p2Units[i].target.heal <= 0){
 							if(p2Units[i].target.notPaid){
