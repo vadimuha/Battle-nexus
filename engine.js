@@ -1,7 +1,9 @@
 
 
 $(function(){
-//main inits
+/*=============
+=  main inits =
+==============*/
 	curr = 0;
 	current = 0; // current checked element need for ai work
 	gameFill = document.getElementById('gameFill');
@@ -134,8 +136,8 @@ $(function(){
 	}
 	if(gameStage == -1){
 	setInterval(function () {
-			p1Nexus.coin++;
-			p2Nexus.coin++;
+			p1Nexus.coin+=3;
+			p2Nexus.coin+=3;
 		},2000);
 }
 
