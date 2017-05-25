@@ -72,11 +72,25 @@ function zergling() { //p2 10 coin unit
 
 /*
 * All code on top need just becouse js somewhy don't see it from engine
+* So ai code begins here
+* Here's main functions that spawns unit
+* They also checks if ai not cheating 
 */
-
-console.log("at ai");
-if(p2Nexus.coin >= 10) {
-	console.log("check good");
-	p2Units.push(new zergling);
-	p2Nexus.coin-=10;
+function spawnZergling () {
+	if(p2Nexus.coin >= 10) {
+		p2Units.push(new zergling);
+		p2Nexus.coin -= 10;
+	}
+}
+function spawnHidralisk() {
+	if(p2Nexus.coin >= 50) {
+		p2Units.push(new hidralisk);
+		p2Nexus.coin -= 50;
+	}
+}
+function spawnUltralisk() {
+	if(p2Nexus.coin >= 100) {
+		p2Units.push(new ultralisk);
+		p2Nexus.coin -= 100;
+	}
 }
