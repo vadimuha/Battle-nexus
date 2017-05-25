@@ -1,7 +1,13 @@
 
-
 $(function(){
-//main inits
+	//inport ai
+	function ai() {
+	var script = document.createElement('script');
+	script.src = "ai.js";
+	document.getElementsByTagName('head')[0].appendChild(script);
+	}
+
+	//main inits
 	curr = 0;
 	current = 0; // current checked element need for ai work
 	gameFill = document.getElementById('gameFill');
@@ -309,7 +315,7 @@ $(function(){
 	//if unit is bought
 	$(window).keydown(function (e) {
 		switch (e.keyCode){
-			case m:
+			/*case m:
 			if(p2Nexus.coin >= unit1.cost){
 				p2Units.push(new zergling);
 				p2Nexus.coin -= unit1.cost;
@@ -335,7 +341,8 @@ $(function(){
 				notEmoughMoneyP2.play();
 			}
 			break;
-			case b:
+			
+			/*case b:
 			if(p2Nexus.coin >= ultrlsk.cost){
 				p2Units.push(new ultralisk);
 				p2Nexus.coin -= ultrlsk.cost;
@@ -377,7 +384,7 @@ $(function(){
 			else{
 				notEmoughMoneyP2.play();
 			}
-			break;
+			break;*/
 			case ee:
 			if(p1Nexus.coin >= gst.cost){
 				p1Units.push(new ghost);
@@ -482,6 +489,7 @@ $(function(){
 		if(gameStage == -1){
 			update();
 			render();
+			ai();
 		}
 
 	else if(gameStage == 1){
@@ -1106,9 +1114,9 @@ function render() {
 	ctx.fillText(ultrlsk.cost,10,height-2);//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
 	ctx.fillText(hidrlsk.cost,58,height-2);//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
 	ctx.fillText(unit1.cost,52*2,height-2);//y1: padding by y + height + font size, x: width of game field - width of image/2-font size
-	ctx.fillText("b",10,height-58);
-	ctx.fillText("n",58,height-58);
-	ctx.fillText("m",52*2,height-58);
+	//ctx.fillText("b",10,height-58);
+	//ctx.fillText("n",58,height-58);
+	//ctx.fillText("m",52*2,height-58);
 	//nexus draw
 	ctx.drawImage(p1Nexus.image,width/2,30,100,100); // draw p1 nexus
 	ctx.fillText(p1Nexus.heal+"/1000",width/2+30,20);
