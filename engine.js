@@ -6,7 +6,12 @@ $(function(){
 	script.src = "ai.js";
 	document.getElementsByTagName('head')[0].appendChild(script);
 	}
-
+	function stat() {
+	var script = document.createElement('script');
+	script.src = "beginVars.js";
+	document.getElementsByTagName('head')[0].appendChild(script);
+	}
+	stat()
 	//main inits
 	curr = 0;
 	current = 0; // current checked element need for ai work

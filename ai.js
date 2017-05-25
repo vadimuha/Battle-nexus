@@ -1,3 +1,4 @@
+
 function zergling() { //p2 10 coin unit
 	this.img = zerglingImg,
 	this.height = 42.25,
@@ -73,7 +74,8 @@ function zergling() { //p2 10 coin unit
 /*
 * All code on top need just becouse js somewhy don't see it from engine
 * So ai code begins here
-* Here's main functions that spawns unit
+* Also all vars initialization on beginVats.js becouse this file refreshes with frames
+* Here's main functions that spawns unit 
 * They also checks if ai not cheating 
 */
 function spawnZergling () {
@@ -94,3 +96,5 @@ function spawnUltralisk() {
 		p2Nexus.coin -= 100;
 	}
 }
+
+
