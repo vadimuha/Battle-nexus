@@ -82,19 +82,64 @@ function spawnZergling () {
 	if(p2Nexus.coin >= 10) {
 		p2Units.push(new zergling);
 		p2Nexus.coin -= 10;
+		switch(zerglingWord){
+			case 0:
+				zerglingSpeek1.play();
+			break;
+			case 1:
+				zerglingSpeek2.play();
+			break;
+			case 2:
+				zerglingSpeek3.play();
+			break;
+			case 3:
+				zerglingSpeek4.play();
+			break;
+			case 4:
+				zerglingSpeek5.play();
+			break;
+		}
 	}
 }
 function spawnHidralisk() {
 	if(p2Nexus.coin >= 50) {
 		p2Units.push(new hidralisk);
 		p2Nexus.coin -= 50;
+		switch(hidraliskWord){
+			case 0:
+				hidraliskSpeek1.play();
+			break;
+			case 1:
+				hidraliskSpeek2.play();
+			break;
+			case 2:
+				hidraliskSpeek3.play();
+			break;
+			case 3:
+				hidraliskSpeek4.play();
+			break;
+	}
 	}
 }
 function spawnUltralisk() {
 	if(p2Nexus.coin >= 100) {
 		p2Units.push(new ultralisk);
 		p2Nexus.coin -= 100;
+		switch(ultraliskWord){
+			case 0:
+				ultraliskSpeek1.play();
+			break;
+			case 1:
+				ultraliskSpeek2.play();
+			break;
+			case 2:
+				ultraliskSpeek3.play();
+			break;
+		}
 	}
 }
+function defendTactic () {
+	
+}
 
-
+defendTactic();
