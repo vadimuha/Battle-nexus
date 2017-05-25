@@ -138,8 +138,14 @@ function spawnUltralisk() {
 		}
 	}
 }
+/*
+* Ai will play passive of agressive tactic defent ob vehavior 
+* So this way It will all of chosing tactics
+* Mb in future there will be more than this two tactics
+*/
 function defendTactic () {
 	
 }
+function attackTactic() {
 
-defendTactic();
+}
