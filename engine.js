@@ -117,7 +117,7 @@ $(function(){
 	p1Nexus = {
 		image:p1NexusImg,
 		heal:1000,
-		coin:30,
+		coin:300,
 		width:130,
 		height:107,
 		y:30,
@@ -127,7 +127,7 @@ $(function(){
 	p2Nexus = {
 		image:p2NexusImg,
 		heal:1000,
-		coin:30,
+		coin:300,
 		y:height-60-35-100,
 		x:width/2,
 		width:130,
